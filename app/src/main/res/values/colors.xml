@@ -7,4 +7,17 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="paper_color">#568ECC</color>
+    <color name="glass_color">#68BA52</color>
+    <color name="plastic_color">#F78224</color>
+    <color name="metal_color">#FA6456</color>
+    <color name="clothes_color">#F358F1</color>
+    <color name="other_color">#74EEF2</color>
+    <color name="dangerous_color">#3A3939</color>
+    <color name="batteries_color">#C69745</color>
+    <color name="lamp_color">#984CFF</color>
+    <color name="appliances_color">#BA4B48</color>
+    <color name="tetra_color">#9CD7A3</color>
+    <color name="lid_color">#E0DA24</color>
+    <color name="tires_color">#3D0909</color>
 </resources>
