@@ -43,5 +43,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation 'com.yandex.android:maps.mobile:4.2.2-full' //yandex.map api
-    implementation 'ir.mahozad.android:pie-chart:0.7.0'
 }
