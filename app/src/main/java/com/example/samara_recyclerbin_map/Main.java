@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -19,7 +20,11 @@ import androidx.core.content.ContextCompat;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKit;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.RequestPoint;
+import com.yandex.mapkit.RequestPointType;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.geometry.Polyline;
+import com.yandex.mapkit.geometry.SubpolylineHelper;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CompositeIcon;
@@ -28,22 +33,39 @@ import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
+import com.yandex.mapkit.transport.TransportFactory;
+import com.yandex.mapkit.transport.masstransit.FilterVehicleTypes;
+import com.yandex.mapkit.transport.masstransit.PedestrianRouter;
+import com.yandex.mapkit.transport.masstransit.Route;
+import com.yandex.mapkit.transport.masstransit.Section;
+import com.yandex.mapkit.transport.masstransit.Session;
+import com.yandex.mapkit.transport.masstransit.TimeOptions;
+import com.yandex.mapkit.transport.masstransit.TransitOptions;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
+import com.yandex.runtime.Error;
 import com.yandex.runtime.image.ImageProvider;
+import com.yandex.runtime.network.NetworkError;
+import com.yandex.runtime.network.RemoteError;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class Main extends Activity implements UserLocationObjectListener {
+public class Main extends Activity implements /*UserLocationObjectListener,*/ Session.RouteListener{
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     private MapView mapview;
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
     private final Point TEST = new Point(53.212857,50.182195);
     private UserLocationLayer userLocationLayer;
+    private MapObjectCollection mapObjects;
     private Point clickedPoint;
+    private PedestrianRouter walkRouter;
     //private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     //"Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
@@ -64,14 +86,14 @@ public class Main extends Activity implements UserLocationObjectListener {
 
         requestLocationPermission();
 
-        MapKit mapKit = MapKitFactory.getInstance();
-        mapKit.resetLocationManagerToDefault(); //хз что это - нашел в оф.примере на гите
-        userLocationLayer = mapKit.createUserLocationLayer(mapview.getMapWindow());
-        userLocationLayer.setVisible(true);
-        userLocationLayer.setHeadingEnabled(true);
-        userLocationLayer.setObjectListener(this);
+//        MapKit mapKit = MapKitFactory.getInstance();
+//        mapKit.resetLocationManagerToDefault(); //хз что это - нашел в оф.примере на гите
+//        userLocationLayer = mapKit.createUserLocationLayer(mapview.getMapWindow());
+//        userLocationLayer.setVisible(true);
+//        userLocationLayer.setHeadingEnabled(true);
+//        userLocationLayer.setObjectListener(this);
 
-        MapObjectCollection mapObjects = mapview.getMap().getMapObjects().addCollection();
+        mapObjects = mapview.getMap().getMapObjects().addCollection();
 
         //просто два примера
         String[] chosenTypes1 = {"Plastic", "Metal", "Lid", "Other", "Lamp"}; //типы, что можно переработать
@@ -88,6 +110,19 @@ public class Main extends Activity implements UserLocationObjectListener {
         home.setUserData(new RecyclingPoint(START_POINT, "Аэрокос", "У нас есть суперкомпьютер", "Что-то"));
         home.addTapListener(placeMarkTapListener);
 
+        createRoute();
+
+    }
+
+    private void createRoute() {
+        List<RequestPoint> points = new ArrayList<RequestPoint>();
+        Point end = new Point(52.006729030813965, 48.79514156751935);
+
+        points.add(new RequestPoint(START_POINT, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(end, RequestPointType.WAYPOINT, null));
+
+        walkRouter = TransportFactory.getInstance().createPedestrianRouter();
+        walkRouter.requestRoutes(points, new TimeOptions(), this);
     }
 
     //проверка нужных разрешений на геолокацию
@@ -217,36 +252,63 @@ public class Main extends Activity implements UserLocationObjectListener {
         return bitmap;
     }
 
-    @Override
-    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
-        userLocationLayer.setAnchor(
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
-
-        userLocationView.getArrow().setIcon(ImageProvider.fromResource(
-                this, R.drawable.user_arrow));
-
-        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
-
-        pinIcon.setIcon(
-                "pin",
-                ImageProvider.fromResource(this, R.drawable.search_result),
-                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
-                        .setRotationType(RotationType.ROTATE)
-                        .setZIndex(1f)
-                        .setScale(0.5f)
-        );
-
-        userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
+    private void drawPath(Polyline geometry) {
+        PolylineMapObject polylineMapObject = mapObjects.addPolyline(geometry);
+        polylineMapObject.setStrokeColor(R.color.purple_200);
     }
 
     @Override
-    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
-
+    public void onMasstransitRoutes(@NonNull List<Route> list) {
+        if (list.size() > 0) {
+            for (Section section : list.get(0).getSections()) {
+                drawPath(SubpolylineHelper.subpolyline(
+                        list.get(0).getGeometry(), section.getGeometry()));
+            }
+        }
     }
 
     @Override
-    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
+    public void onMasstransitRoutesError(@NonNull Error error) {
+        String errorMessage = getString(R.string.unknown_error_message);
+        if (error instanceof RemoteError) {
+            errorMessage = getString(R.string.remote_error_message);
+        } else if (error instanceof NetworkError) {
+            errorMessage = getString(R.string.network_error_message);
+        }
 
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
+
+//    @Override
+//    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
+//        userLocationLayer.setAnchor(
+//                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
+//                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
+//
+//        userLocationView.getArrow().setIcon(ImageProvider.fromResource(
+//                this, R.drawable.user_arrow));
+//
+//        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
+//
+//        pinIcon.setIcon(
+//                "pin",
+//                ImageProvider.fromResource(this, R.drawable.search_result),
+//                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
+//                        .setRotationType(RotationType.ROTATE)
+//                        .setZIndex(1f)
+//                        .setScale(0.5f)
+//        );
+//
+//        userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
+//    }
+//
+//    @Override
+//    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
+//
+//    }
+//
+//    @Override
+//    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
+//
+//    }
 }
