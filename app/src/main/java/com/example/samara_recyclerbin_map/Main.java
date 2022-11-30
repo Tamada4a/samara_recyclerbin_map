@@ -1,6 +1,8 @@
 package com.example.samara_recyclerbin_map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,6 +13,8 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -56,7 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Main extends Activity implements /*UserLocationObjectListener,*/ Session.RouteListener{
+public class Main extends Activity implements UserLocationObjectListener, Session.RouteListener{
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     private MapView mapview;
@@ -73,7 +77,6 @@ public class Main extends Activity implements /*UserLocationObjectListener,*/ Se
     protected void onCreate(Bundle savedInstanceState) {
         MapKitFactory.setApiKey(getString(R.string.API_KEY));
         MapKitFactory.initialize(this);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -86,12 +89,29 @@ public class Main extends Activity implements /*UserLocationObjectListener,*/ Se
 
         requestLocationPermission();
 
-//        MapKit mapKit = MapKitFactory.getInstance();
-//        mapKit.resetLocationManagerToDefault(); //хз что это - нашел в оф.примере на гите
-//        userLocationLayer = mapKit.createUserLocationLayer(mapview.getMapWindow());
-//        userLocationLayer.setVisible(true);
-//        userLocationLayer.setHeadingEnabled(true);
-//        userLocationLayer.setObjectListener(this);
+        MapKit mapKit = MapKitFactory.getInstance();
+        //mapKit.resetLocationManagerToDefault(); //хз что это - нашел в оф.примере на гите
+        userLocationLayer = mapKit.createUserLocationLayer(mapview.getMapWindow());
+        userLocationLayer.setVisible(true);
+        userLocationLayer.setHeadingEnabled(true);
+        userLocationLayer.setObjectListener(this);
+
+        ImageButton add_button = findViewById(R.id.add_button);
+
+        add_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(userLocationLayer.cameraPosition() != null){
+                    Point userPoint = userLocationLayer.cameraPosition().getTarget();
+                    mapview.getMap().move(
+                            new CameraPosition(userPoint, 15.0f, 0.0f, 0.0f),
+                            new Animation(Animation.Type.SMOOTH, 1.2f),
+                            null);
+                }
+                else
+                    Toast.makeText(Main.this, "Проблемы с определением местоположения", Toast.LENGTH_LONG).show();
+            }
+        });
 
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
@@ -110,15 +130,14 @@ public class Main extends Activity implements /*UserLocationObjectListener,*/ Se
         home.setUserData(new RecyclingPoint(START_POINT, "Аэрокос", "У нас есть суперкомпьютер", "Что-то"));
         home.addTapListener(placeMarkTapListener);
 
-        createRoute();
 
     }
 
-    private void createRoute() {
+    //пока оно отвечает за создание маршрута
+    private void createRoute(Point start, Point end) {
         List<RequestPoint> points = new ArrayList<RequestPoint>();
-        Point end = new Point(52.006729030813965, 48.79514156751935);
 
-        points.add(new RequestPoint(START_POINT, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
         points.add(new RequestPoint(end, RequestPointType.WAYPOINT, null));
 
         walkRouter = TransportFactory.getInstance().createPedestrianRouter();
@@ -153,10 +172,33 @@ public class Main extends Activity implements /*UserLocationObjectListener,*/ Se
 
                 //является ли userData объектом нашего класса
                 if(userData instanceof RecyclingPoint){
-                    clickedPoint = ((RecyclingPoint) userData).getPoint();
+                    RecyclingPoint data = (RecyclingPoint) userData;
+                    clickedPoint = data.getPoint();
                     System.out.println("Выбранная точка " + clickedPoint.getLatitude() + " " + clickedPoint.getLongitude());
-                    System.out.println("Информация о точке " + ((RecyclingPoint) userData).getInfo() + " "
-                            + ((RecyclingPoint) userData).getType() + " " + ((RecyclingPoint) userData).getLocation());
+                    System.out.println("Информация о точке " + data.getInfo() + " "
+                            + data.getType() + " " + data.getLocation());
+
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
+                            .setTitle("Информация о точке")
+                            .setMessage(data.getInfo() + "\n" + data.getLatitude() + " " + data.getLongitude())
+                            .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(userLocationLayer.cameraPosition().getTarget() != null) {
+                                        createRoute(userLocationLayer.cameraPosition().getTarget(), clickedPoint);
+                                        System.out.println("ОНО РАБОТАЕТ!!!!!");
+                                    }else{
+                                        Toast.makeText(Main.this, "Проверьте геолокацию", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                }
+                            });
+                    dialog.show();
                 }
             }
             return true;
@@ -279,36 +321,38 @@ public class Main extends Activity implements /*UserLocationObjectListener,*/ Se
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
-//    @Override
-//    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
-//        userLocationLayer.setAnchor(
-//                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
-//                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
-//
-//        userLocationView.getArrow().setIcon(ImageProvider.fromResource(
-//                this, R.drawable.user_arrow));
-//
-//        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
-//
-//        pinIcon.setIcon(
-//                "pin",
-//                ImageProvider.fromResource(this, R.drawable.search_result),
-//                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
-//                        .setRotationType(RotationType.ROTATE)
-//                        .setZIndex(1f)
-//                        .setScale(0.5f)
-//        );
-//
-//        userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
-//    }
-//
-//    @Override
-//    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
-//
-//    }
-//
-//    @Override
-//    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-//
-//    }
+    @Override
+    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
+        userLocationLayer.setAnchor(
+                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
+                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
+
+        userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.user_arrow));
+
+
+        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
+
+        pinIcon.setIcon(
+                "pin",
+                ImageProvider.fromResource(this, R.drawable.search_result),
+                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
+                        .setRotationType(RotationType.ROTATE)
+                        .setZIndex(1f)
+                        .setScale(0.5f)
+        );
+
+        System.out.println("TEST WITH GPS "  + userLocationLayer == null);
+
+        userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
+    }
+
+    @Override
+    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
+
+    }
+
+    @Override
+    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
+
+    }
 }
