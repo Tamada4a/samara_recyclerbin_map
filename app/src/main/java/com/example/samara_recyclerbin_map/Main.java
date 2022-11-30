@@ -46,8 +46,8 @@ public class Main extends AppCompatActivity {
                 null);
         MapObjectCollection mapObjects = mapview.getMap().getMapObjects().addCollection();
 
-        //String[] chosenTypes = {"Plastic", "Metal", "Lid", "Other", "Lamp"};
-        String[] chosenTypes = {"Lamp"};
+        String[] chosenTypes = {"Plastic", "Metal", "Lid", "Other", "Lamp"};
+        //String[] chosenTypes = {"Lamp"};
         Bitmap bitmap = drawMarker(chosenTypes);
         PlacemarkMapObject markerTest = mapObjects.addPlacemark(TEST, ImageProvider.fromBitmap(bitmap));
     }
@@ -73,66 +73,62 @@ public class Main extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
-        float sweepAngel = 360 / length;
+        float sweepAngel = (float)360 / length;
         float startAngel = 0;
+
+        RectF pi = new RectF(0, 0, picSize, picSize);
 
         int color = 0;
 
-        for(int i = 0; i < length; ++i){
-            switch (chosenTypes[i]){
+        for (String chosenType : chosenTypes) {
+            switch (chosenType) {
                 case "Paper":
                     color = ContextCompat.getColor(this, R.color.paper_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Glass":
                     color = ContextCompat.getColor(this, R.color.glass_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Plastic":
                     color = ContextCompat.getColor(this, R.color.plastic_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Metal":
                     color = ContextCompat.getColor(this, R.color.metal_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Clothes":
                     color = ContextCompat.getColor(this, R.color.clothes_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Other":
                     color = ContextCompat.getColor(this, R.color.other_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Dangerous":
                     color = ContextCompat.getColor(this, R.color.dangerous_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Batteries":
                     color = ContextCompat.getColor(this, R.color.batteries_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Lamp":
                     color = ContextCompat.getColor(this, R.color.lamp_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Appliances":
                     color = ContextCompat.getColor(this, R.color.appliances_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Tetra":
                     color = ContextCompat.getColor(this, R.color.tetra_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Lid":
                     color = ContextCompat.getColor(this, R.color.lid_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
                 case "Tires":
                     color = ContextCompat.getColor(this, R.color.tires_color);
-                    startAngel = drawArc(color, sweepAngel, startAngel, canvas);
                     break;
             }
+
+            Paint paint = new Paint();
+
+            paint.setColor(color);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            canvas.drawArc(pi, startAngel, sweepAngel, true, paint);
+            startAngel += sweepAngel;
         }
 
         Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -142,19 +138,5 @@ public class Main extends AppCompatActivity {
         canvas.drawCircle((float)(picSize / 2), (float)(picSize / 2), (float)(picSize / 3), circlePaint);
         
         return bitmap;
-    }
-
-    private float drawArc(int color, float sweepAngel, float startAngel, Canvas canvas){
-
-        RectF pi = new RectF(0, 0, picSize, picSize);
-
-        Paint paint = new Paint();
-
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        canvas.drawArc(pi, startAngel, sweepAngel, true, paint);
-        startAngel += sweepAngel;
-
-        return startAngel;
     }
 }
