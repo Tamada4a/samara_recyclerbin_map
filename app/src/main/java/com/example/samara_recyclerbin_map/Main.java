@@ -26,6 +26,12 @@ import com.yandex.mapkit.MapKit;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.RequestPoint;
 import com.yandex.mapkit.RequestPointType;
+import com.yandex.mapkit.directions.DirectionsFactory;
+import com.yandex.mapkit.directions.driving.DrivingOptions;
+import com.yandex.mapkit.directions.driving.DrivingRoute;
+import com.yandex.mapkit.directions.driving.DrivingRouter;
+import com.yandex.mapkit.directions.driving.DrivingSession;
+import com.yandex.mapkit.directions.driving.VehicleOptions;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.geometry.SubpolylineHelper;
@@ -41,13 +47,11 @@ import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.transport.TransportFactory;
-import com.yandex.mapkit.transport.masstransit.FilterVehicleTypes;
 import com.yandex.mapkit.transport.masstransit.PedestrianRouter;
 import com.yandex.mapkit.transport.masstransit.Route;
 import com.yandex.mapkit.transport.masstransit.Section;
 import com.yandex.mapkit.transport.masstransit.Session;
 import com.yandex.mapkit.transport.masstransit.TimeOptions;
-import com.yandex.mapkit.transport.masstransit.TransitOptions;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
@@ -60,16 +64,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Main extends Activity implements UserLocationObjectListener, Session.RouteListener{
+public class Main extends Activity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener{
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
-    private MapView mapview;
+    private PedestrianRouter pedestrianRouter;
+    private DrivingRouter drivingRouter;
+    private DrivingSession drivingSession;
+
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
     private final Point TEST = new Point(53.212857,50.182195);
-    private UserLocationLayer userLocationLayer;
+
+    private MapView mapview;
     private MapObjectCollection mapObjects;
-    private Point clickedPoint;
-    private PedestrianRouter walkRouter;
+    Point clickedPoint;
+
+    private UserLocationLayer userLocationLayer;
+
+    private List<PolylineMapObject> currentPath = new ArrayList<>();
+
     //private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     //"Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
@@ -90,13 +102,13 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
         requestLocationPermission();
 
         MapKit mapKit = MapKitFactory.getInstance();
-        //mapKit.resetLocationManagerToDefault(); //хз что это - нашел в оф.примере на гите
         userLocationLayer = mapKit.createUserLocationLayer(mapview.getMapWindow());
         userLocationLayer.setVisible(true);
         userLocationLayer.setHeadingEnabled(true);
         userLocationLayer.setObjectListener(this);
 
         ImageButton add_button = findViewById(R.id.add_button);
+        ImageButton removePath_button = findViewById(R.id.removePath_button);
 
         add_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,6 +125,13 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
             }
         });
 
+        removePath_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteCurrentPath();
+            }
+        });
+
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
         //просто два примера
@@ -120,28 +139,35 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
         Bitmap bitmap1 = drawMarker(chosenTypes1); //получаем битмап из функции
         PlacemarkMapObject markerTest = mapObjects.addPlacemark(TEST, ImageProvider.fromBitmap(bitmap1));
         //маркеру добавляем информацию
-        markerTest.setUserData(new RecyclingPoint(TEST, "Русь", "У нас много мусорок", "Что-то"));
+        markerTest.setUserData(new RecyclingPoint(TEST, "Русь", "ТЦ Русь", "Что-то", chosenTypes1));
         //добавляем обработку нажатия на него. Потом через это можно будет сделать как на сайте
         markerTest.addTapListener(placeMarkTapListener);
 
         String[] chosenTypes2 = {"Tetra", "Batteries", "Clothes", "Glass", "Dangerous"};
         Bitmap bitmap2 = drawMarker(chosenTypes2);
         PlacemarkMapObject home = mapObjects.addPlacemark(START_POINT, ImageProvider.fromBitmap(bitmap2));
-        home.setUserData(new RecyclingPoint(START_POINT, "Аэрокос", "У нас есть суперкомпьютер", "Что-то"));
+        home.setUserData(new RecyclingPoint(START_POINT, "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
         home.addTapListener(placeMarkTapListener);
 
-
+        String[] chosenTypes3 = {"Tetra", "Batteries", "Clothes", "Glass", "Dangerous"};
+        Bitmap bitmap3 = drawMarker(chosenTypes2);
+        PlacemarkMapObject home2 = mapObjects.addPlacemark(new Point(53.2108275862854, 50.178027993319), ImageProvider.fromBitmap(bitmap3));
+        home2.setUserData(new RecyclingPoint(new Point(53.2108275862854, 50.178027993319), "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
+        home2.addTapListener(placeMarkTapListener);
     }
 
-    //пока оно отвечает за создание маршрута
-    private void createRoute(Point start, Point end) {
-        List<RequestPoint> points = new ArrayList<RequestPoint>();
+    @Override
+    protected void onStop() {
+        mapview.onStop();
+        MapKitFactory.getInstance().onStop();
+        super.onStop();
+    }
 
-        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
-        points.add(new RequestPoint(end, RequestPointType.WAYPOINT, null));
-
-        walkRouter = TransportFactory.getInstance().createPedestrianRouter();
-        walkRouter.requestRoutes(points, new TimeOptions(), this);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MapKitFactory.getInstance().onStart();
+        mapview.onStart();
     }
 
     //проверка нужных разрешений на геолокацию
@@ -165,58 +191,65 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     private MapObjectTapListener placeMarkTapListener = new MapObjectTapListener() {
         @Override
         public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
-            //проверяем на то, маркер ли это(в апи есть и другие виды объектов на картах)
             if(mapObject instanceof PlacemarkMapObject){
-                System.out.println("ОН ТЫКНУЛ");
                 Object userData = mapObject.getUserData();
 
-                //является ли userData объектом нашего класса
                 if(userData instanceof RecyclingPoint){
                     RecyclingPoint data = (RecyclingPoint) userData;
                     clickedPoint = data.getPoint();
-                    System.out.println("Выбранная точка " + clickedPoint.getLatitude() + " " + clickedPoint.getLongitude());
-                    System.out.println("Информация о точке " + data.getInfo() + " "
-                            + data.getType() + " " + data.getLocation());
-
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
-                            .setTitle("Информация о точке")
-                            .setMessage(data.getInfo() + "\n" + data.getLatitude() + " " + data.getLongitude())
-                            .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    if(userLocationLayer.cameraPosition().getTarget() != null) {
-                                        createRoute(userLocationLayer.cameraPosition().getTarget(), clickedPoint);
-                                        System.out.println("ОНО РАБОТАЕТ!!!!!");
-                                    }else{
-                                        Toast.makeText(Main.this, "Проверьте геолокацию", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            })
-                            .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.cancel();
-                                }
-                            });
-                    dialog.show();
+                    showPointInfo(data);
                 }
             }
             return true;
         }
     };
 
-    @Override
-    protected void onStop() {
-        mapview.onStop();
-        MapKitFactory.getInstance().onStop();
-        super.onStop();
+    private void showPointInfo(RecyclingPoint data){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
+                .setTitle(data.getLocationName())
+                .setMessage(data.getInfo() + "\n" + data.getLatitude() + " " + data.getLongitude())
+                .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(userLocationLayer.cameraPosition().getTarget() != null) {
+                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
+                            dialogInterface.cancel();
+                        }else{
+                            Toast.makeText(Main.this, "Проверьте геолокацию", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+        dialog.show();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        MapKitFactory.getInstance().onStart();
-        mapview.onStart();
+    private void showCreateRouteOptions(Point startPoint) {
+        AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
+                .setTitle("Как вы хотите добраться?")
+                .setPositiveButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setNeutralButton("На машине", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        createDrivingRoute(startPoint);
+                    }
+                })
+                .setNegativeButton("Пешком", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        createPedestrianRoute(startPoint);
+                    }
+                });
+        routerOptions.show();
     }
 
     private Bitmap drawMarker(@NonNull String[] chosenTypes){
@@ -294,9 +327,47 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
         return bitmap;
     }
 
+    private void deleteCurrentPath(){
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath)
+                mapObjects.remove(poly);
+            currentPath = new ArrayList<>();
+        }else{
+            Toast.makeText(this, "Вы не проложили путь!", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void createDrivingRoute(Point start) {
+        List<RequestPoint> points = new ArrayList<>();
+
+        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
+
+        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
+        drivingSession = drivingRouter.requestRoutes(points, new DrivingOptions(), new VehicleOptions(), this);
+    }
+
+    private void createPedestrianRoute(Point start) {
+        List<RequestPoint> points = new ArrayList<>();
+
+        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
+
+        pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
+        pedestrianRouter.requestRoutes(points, new TimeOptions(), this);
+    }
+
     private void drawPath(Polyline geometry) {
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath)
+                mapObjects.remove(poly);
+            currentPath = new ArrayList<>();
+        }
+
         PolylineMapObject polylineMapObject = mapObjects.addPolyline(geometry);
         polylineMapObject.setStrokeColor(R.color.purple_200);
+
+        currentPath.add(polylineMapObject);
     }
 
     @Override
@@ -322,12 +393,44 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     }
 
     @Override
+    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath) {
+                mapObjects.remove(poly);
+            }
+            currentPath = new ArrayList<>();
+        }
+        if(list.size() > 0) {
+            for (DrivingRoute route : list) {
+                PolylineMapObject polylineMapObject = mapObjects.addPolyline(route.getGeometry());
+                currentPath.add(polylineMapObject);
+            }
+        }
+        else {
+            Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
+            System.out.println("Невозможно добраться на машине");
+        }
+    }
+
+    @Override
+    public void onDrivingRoutesError(@NonNull Error error) {
+        String errorMessage = getString(R.string.unknown_error_message);
+        if (error instanceof RemoteError) {
+            errorMessage = getString(R.string.remote_error_message);
+        } else if (error instanceof NetworkError) {
+            errorMessage = getString(R.string.network_error_message);
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onObjectAdded(@NonNull UserLocationView userLocationView) {
         userLocationLayer.setAnchor(
                 new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
                 new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
 
-        userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.user_arrow));
+        userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.navigation_marker));
 
 
         CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
@@ -340,8 +443,6 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                         .setZIndex(1f)
                         .setScale(0.5f)
         );
-
-        System.out.println("TEST WITH GPS "  + userLocationLayer == null);
 
         userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
     }
