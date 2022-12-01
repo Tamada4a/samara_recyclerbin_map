@@ -208,7 +208,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     private void showPointInfo(RecyclingPoint data){
         AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
                 .setTitle(data.getLocationName())
-                .setMessage(data.getInfo() + "\n" + data.getLatitude() + " " + data.getLongitude())
+                .setMessage(data.getInfo())
                 .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -429,9 +429,9 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
 
     @Override
     public void onObjectAdded(@NonNull UserLocationView userLocationView) {
-        userLocationLayer.setAnchor(
+        /*userLocationLayer.setAnchor(
                 new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));
+                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));*/
 
         userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.navigation_marker));
 

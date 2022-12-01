@@ -16,9 +16,9 @@
        android:id="@+id/removePath_button"
        android:layout_width="40dp"
        android:layout_height="40dp"
-       android:layout_marginTop="550dp"
        android:layout_marginStart="30dp"
-       android:background="@color/white"
+       android:layout_marginTop="550dp"
+       android:background="@null"
        android:scaleType="fitEnd"
        android:src="@drawable/add_button" />
 
@@ -29,7 +29,7 @@
        android:layout_alignParentEnd="true"
        android:layout_marginTop="550dp"
        android:layout_marginEnd="30dp"
-       android:background="@color/white"
+       android:background="@null"
        android:scaleType="fitEnd"
        android:src="@drawable/add_button" />
 
