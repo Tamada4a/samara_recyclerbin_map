@@ -6,14 +6,16 @@ public class RecyclingPoint {
 
     private Point point;
     private String location;
-    private String type;
+    private String[] types;
+    private String locationName;
     private String info;
 
-    public RecyclingPoint(Point point, String location, String type, String info){
+    public RecyclingPoint(Point point, String location, String locationName, String info, String[] types){
         this.point = point;
         this.location = location;
-        this.type = type;
+        this.locationName = locationName;
         this.info = info;
+        this.types = types;
     }
 
     public Point getPoint() {
@@ -28,8 +30,8 @@ public class RecyclingPoint {
         return location;
     }
 
-    public String getType() {
-        return type;
+    public String[] getTypes() {
+        return types;
     }
 
     public double getLatitude(){
@@ -38,5 +40,9 @@ public class RecyclingPoint {
 
     public double getLongitude(){
         return point.getLongitude();
+    }
+
+    public String getLocationName() {
+        return locationName;
     }
 }
