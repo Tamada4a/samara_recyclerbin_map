@@ -76,11 +76,12 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
 
     private MapView mapview;
     private MapObjectCollection mapObjects;
-    Point clickedPoint;
+    private Point clickedPoint;
 
     private UserLocationLayer userLocationLayer;
 
     private List<PolylineMapObject> currentPath = new ArrayList<>();
+    private String typeOfRoute = "";
 
     //private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     //"Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
@@ -338,6 +339,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     }
     
     private void createDrivingRoute(Point start) {
+        typeOfRoute = "drive";
         List<RequestPoint> points = new ArrayList<>();
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
@@ -348,6 +350,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     }
 
     private void createPedestrianRoute(Point start) {
+        typeOfRoute = "pedestrian";
         List<RequestPoint> points = new ArrayList<>();
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
@@ -454,6 +457,13 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
 
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-
+        if (userLocationLayer.cameraPosition().getTarget() != null && currentPath.size() > 0) {
+            Point userPoint = userLocationLayer.cameraPosition().getTarget();
+            if (typeOfRoute.equals("drive")) {
+                createDrivingRoute(userPoint);
+            }else if(typeOfRoute.equals("pedestrian")){
+                createPedestrianRoute(userPoint);
+            }
+        }
     }
 }
