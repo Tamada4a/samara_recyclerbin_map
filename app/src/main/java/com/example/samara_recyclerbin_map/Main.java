@@ -20,7 +20,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.navigation.NavigationView;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKit;
 import com.yandex.mapkit.MapKitFactory;
@@ -83,6 +86,9 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     private List<PolylineMapObject> currentPath = new ArrayList<>();
     private String typeOfRoute = "";
 
+    //массив, в котором отражено, нажата ли кнопка(какая у нее иконка - цветная или нет)
+    private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+
     //private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     //"Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
@@ -108,10 +114,30 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
         userLocationLayer.setHeadingEnabled(true);
         userLocationLayer.setObjectListener(this);
 
-        ImageButton add_button = findViewById(R.id.add_button);
-        ImageButton removePath_button = findViewById(R.id.removePath_button);
+        mapObjects = mapview.getMap().getMapObjects().addCollection();
 
-        add_button.setOnClickListener(new View.OnClickListener() {
+        ImageButton pointer = findViewById(R.id.pointer);
+        ImageButton removePath_button = findViewById(R.id.removePath_button);
+        ImageButton menu_button = findViewById(R.id.menu_button);
+        NavigationView sideMenu = findViewById(R.id.nav_view);
+        View sideMenuHeader = sideMenu.getHeaderView(0);
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        ImageButton papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
+        ImageButton glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
+        ImageButton plastic_menu_button = sideMenuHeader.findViewById(R.id.plastic_menu_button);
+        ImageButton metal_menu_button = sideMenuHeader.findViewById(R.id.metal_menu_button);
+        ImageButton cloths_menu_button = sideMenuHeader.findViewById(R.id.cloths_menu_button);
+        ImageButton other_menu_button = sideMenuHeader.findViewById(R.id.other_menu_button);
+        ImageButton dangerous_menu_button = sideMenuHeader.findViewById(R.id.dangerous_menu_button);
+        ImageButton batteries_menu_button = sideMenuHeader.findViewById(R.id.batteries_menu_button);
+        ImageButton lamp_menu_button = sideMenuHeader.findViewById(R.id.lamp_menu_button);
+        ImageButton appliances_menu_button = sideMenuHeader.findViewById(R.id.appliances_menu_button);
+        ImageButton tetra_menu_button = sideMenuHeader.findViewById(R.id.tetra_menu_button);
+        ImageButton lid_menu_button = sideMenuHeader.findViewById(R.id.lid_menu_button);
+        ImageButton tires_menu_button = sideMenuHeader.findViewById(R.id.tires_menu_button);
+
+        pointer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(userLocationLayer.cameraPosition() != null){
@@ -133,7 +159,181 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
             }
         });
 
-        mapObjects = mapview.getMap().getMapObjects().addCollection();
+        menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        papers_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[0]){
+                    checked[0] = true;
+                    papers_menu_button.setBackgroundResource(R.drawable.papers_selected);
+                }else if(checked[0]){
+                    checked[0] = false;
+                    papers_menu_button.setBackgroundResource(R.drawable.papers);
+                }
+            }
+        });
+
+        glass_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[1]){
+                    checked[1] = true;
+                    glass_menu_button.setBackgroundResource(R.drawable.glass_selected);
+                }else if(checked[1]){
+                    checked[1] = false;
+                    glass_menu_button.setBackgroundResource(R.drawable.glass);
+                }
+            }
+        });
+
+        plastic_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[2]){
+                    checked[2] = true;
+                    plastic_menu_button.setBackgroundResource(R.drawable.plastic_selected);
+                }else if(checked[2]){
+                    checked[2] = false;
+                    plastic_menu_button.setBackgroundResource(R.drawable.plastic);
+                }
+            }
+        });
+
+        metal_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[3]){
+                    checked[3] = true;
+                    metal_menu_button.setBackgroundResource(R.drawable.metal_selected);
+                }else if(checked[3]){
+                    checked[3] = false;
+                    metal_menu_button.setBackgroundResource(R.drawable.metal);
+                }
+            }
+        });
+
+        cloths_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[4]){
+                    checked[4] = true;
+                    cloths_menu_button.setBackgroundResource(R.drawable.cloths_selected);
+                }else if(checked[4]){
+                    checked[4] = false;
+                    cloths_menu_button.setBackgroundResource(R.drawable.cloths);
+                }
+            }
+        });
+
+        other_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[5]){
+                    checked[5] = true;
+                    other_menu_button.setBackgroundResource(R.drawable.other_selected);
+                }else if(checked[5]){
+                    checked[5] = false;
+                    other_menu_button.setBackgroundResource(R.drawable.other);
+                }
+            }
+        });
+
+        dangerous_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[6]){
+                    checked[6] = true;
+                    dangerous_menu_button.setBackgroundResource(R.drawable.dangerous_selected);
+                }else if(checked[6]){
+                    checked[6] = false;
+                    dangerous_menu_button.setBackgroundResource(R.drawable.dangerous);
+                }
+            }
+        });
+
+        batteries_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[7]){
+                    checked[7] = true;
+                    batteries_menu_button.setBackgroundResource(R.drawable.batteries_selected);
+                }else if(checked[7]){
+                    checked[7] = false;
+                    batteries_menu_button.setBackgroundResource(R.drawable.batteries);
+                }
+            }
+        });
+
+        lamp_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[8]){
+                    checked[8] = true;
+                    lamp_menu_button.setBackgroundResource(R.drawable.lamp_selected);
+                }else if(checked[8]){
+                    checked[8] = false;
+                    lamp_menu_button.setBackgroundResource(R.drawable.lamp);
+                }
+            }
+        });
+
+        appliances_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[9]){
+                    checked[9] = true;
+                    appliances_menu_button.setBackgroundResource(R.drawable.appliances_selected);
+                }else if(checked[9]){
+                    checked[9] = false;
+                    appliances_menu_button.setBackgroundResource(R.drawable.appliances);
+                }
+            }
+        });
+
+        tetra_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[10]){
+                    checked[10] = true;
+                    tetra_menu_button.setBackgroundResource(R.drawable.tetra_selected);
+                }else if(checked[10]){
+                    checked[10] = false;
+                    tetra_menu_button.setBackgroundResource(R.drawable.tetra);
+                }
+            }
+        });
+
+        lid_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[11]){
+                    checked[11] = true;
+                    lid_menu_button.setBackgroundResource(R.drawable.lid_selected);
+                }else if(checked[11]){
+                    checked[11] = false;
+                    lid_menu_button.setBackgroundResource(R.drawable.lid);
+                }
+            }
+        });
+
+        tires_menu_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked[12]){
+                    checked[12] = true;
+                    tires_menu_button.setBackgroundResource(R.drawable.tires_selected);
+                }else if(checked[12]){
+                    checked[12] = false;
+                    tires_menu_button.setBackgroundResource(R.drawable.tires);
+                }
+            }
+        });
 
         //просто два примера
         String[] chosenTypes1 = {"Plastic", "Metal", "Lid", "Other", "Lamp"}; //типы, что можно переработать
