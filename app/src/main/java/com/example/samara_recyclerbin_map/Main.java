@@ -105,7 +105,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         mapview = (MapView)findViewById(R.id.mapview);
         mapview.getMap().setRotateGesturesEnabled(true);
         mapview.getMap().move(
-                new CameraPosition(START_POINT, 15.0f, 0.0f, 0.0f),
+                new CameraPosition(START_POINT, 13.0f, 0.0f, 0.0f),
                 new Animation(Animation.Type.SMOOTH, 3),
                 null);
 
