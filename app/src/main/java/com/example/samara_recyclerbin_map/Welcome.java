@@ -59,7 +59,7 @@ public class Welcome extends AppCompatActivity {
 
                     TedPermission.create()
                             .setPermissionListener(permissionlistener)
-                            .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission]")
+                            .setDeniedMessage("Хорошо. Но это может затруднить сервис ;)\n\nВ любой момент вы можете разрешить местоположение в настройках")
                             .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
                             .check();
                 }

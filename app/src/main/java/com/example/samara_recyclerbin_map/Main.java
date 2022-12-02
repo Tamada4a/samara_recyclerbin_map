@@ -84,6 +84,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private MapObjectCollection mapObjects;
     private Point clickedPoint;
     private PlacemarkMapObject destination;
+    private Bitmap bitmapDest;
+
     private UserLocationLayer userLocationLayer;
 
     private List<PolylineMapObject> currentPath = new ArrayList<>();
@@ -352,7 +354,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchTypes();
             }
         });
-
+        bitmapDest = drawDestination();
         initMarkers();
     }
 
@@ -930,8 +932,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                         }else{
                             Toast.makeText(Main.this, "Откуда Вы начнёте путь?", Toast.LENGTH_SHORT).show();
                             if (destination == null) {
-                                String[] dest = {"test"};
-                                Bitmap bitmapDest = drawMarker(dest);
                                 destination = mapObjects.addPlacemark(mapview.getMap().getCameraPosition().getTarget(), ImageProvider.fromBitmap(bitmapDest));
                                 destination.addTapListener(destinationTapListener);
                             } else {
@@ -981,6 +981,17 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         routerOptions.show();
     }
 
+    private Bitmap drawDestination(){
+        int picSize = 80;
+        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        // отрисовка плейсмарка
+        Paint paint = new Paint();
+        paint.setColor(getResources().getColor(R.color.theme));
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
+        return bitmap;
+    }
     private Bitmap drawMarker(@NonNull String[] chosenTypes){
 
         int length = chosenTypes.length;
