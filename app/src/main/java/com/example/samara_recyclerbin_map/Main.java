@@ -452,7 +452,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if(userLocationLayer.cameraPosition().getTarget() != null) {
+                        //if будет лишний и в showCreateRouteOptions не будет параметров
+                        if(userLocationLayer.cameraPosition() != null) {
                             showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
                             dialogInterface.cancel();
                         }else{
@@ -469,6 +470,10 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         dialog.show();
     }
 
+    //отсюда вызывать надо будет то, что ты сделаешь с кастомным местоположением
+    //и тот if перенести будет сюда: если геолокация офнута, то твое
+    //и startPoint определяется через твой метод, если включена, то
+    //startPoint = userLocationLayer.cameraPosition().getTarget()
     private void showCreateRouteOptions(Point startPoint) {
         AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
                 .setTitle("Как вы хотите добраться?")
@@ -697,7 +702,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-        if (userLocationLayer.cameraPosition().getTarget() != null && currentPath.size() > 0) {
+        if (userLocationLayer.cameraPosition() != null && currentPath.size() > 0) {
             Point userPoint = userLocationLayer.cameraPosition().getTarget();
             if (typeOfRoute.equals("drive")) {
                 createDrivingRoute(userPoint);

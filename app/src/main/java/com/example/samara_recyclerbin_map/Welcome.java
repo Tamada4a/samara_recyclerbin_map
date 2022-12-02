@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
@@ -52,7 +51,8 @@ public class Welcome extends AppCompatActivity {
 
                         @Override
                         public void onPermissionDenied(List<String> deniedPermissions) {
-                            Toast.makeText(Welcome.this, "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(Welcome.this, Main.class);
+                            startActivity(intent);
                         }
 
                     };
