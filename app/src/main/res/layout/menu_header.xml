@@ -8,14 +8,21 @@
     app:flChildSpacingForLastRow="align"
     app:flRowSpacing="10dp"
     tools:context=".Main"
-    tools:ignore="MissingClass"
+    tools:ignore="MissingClass">
 
-    >
+
+
+    <ImageView
+        android:layout_width="215dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/side_menu_label" />
 
     <ImageButton
         android:id="@+id/papers_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/papers"
@@ -24,8 +31,8 @@
 
     <ImageButton
         android:id="@+id/glass_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/glass"
@@ -34,8 +41,8 @@
 
     <ImageButton
         android:id="@+id/plastic_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/plastic"
@@ -44,18 +51,17 @@
 
     <ImageButton
         android:id="@+id/metal_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
         android:background="@drawable/metal"
         android:scaleType="fitCenter"
         tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
     <ImageButton
         android:id="@+id/cloths_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/cloths"
         android:scaleType="fitCenter"
@@ -63,8 +69,8 @@
 
     <ImageButton
         android:id="@+id/other_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/other"
         android:scaleType="fitCenter"
@@ -72,8 +78,8 @@
 
     <ImageButton
         android:id="@+id/dangerous_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/dangerous"
         android:scaleType="fitCenter"
@@ -81,8 +87,8 @@
 
     <ImageButton
         android:id="@+id/batteries_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/batteries"
         android:scaleType="fitCenter"
@@ -90,8 +96,8 @@
 
     <ImageButton
         android:id="@+id/lamp_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/lamp"
         android:scaleType="fitCenter"
@@ -99,8 +105,8 @@
 
     <ImageButton
         android:id="@+id/appliances_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/appliances"
         android:scaleType="fitCenter"
@@ -108,8 +114,8 @@
 
     <ImageButton
         android:id="@+id/tetra_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/tetra"
         android:scaleType="fitCenter"
@@ -117,8 +123,8 @@
 
     <ImageButton
         android:id="@+id/lid_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/lid"
         android:scaleType="fitCenter"
@@ -126,8 +132,8 @@
 
     <ImageButton
         android:id="@+id/tires_menu_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="55dp"
+        android:layout_height="66dp"
         android:layout_marginStart="25dp"
         android:background="@drawable/tires"
         android:scaleType="fitCenter"
