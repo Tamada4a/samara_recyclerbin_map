@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -68,7 +69,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class Main extends Activity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener{
+public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener{
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     private PedestrianRouter pedestrianRouter;
@@ -98,9 +99,9 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     protected void onCreate(Bundle savedInstanceState) {
         MapKitFactory.setApiKey(getString(R.string.API_KEY));
         MapKitFactory.initialize(this);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState);
         mapview = (MapView)findViewById(R.id.mapview);
         mapview.getMap().setRotateGesturesEnabled(true);
         mapview.getMap().move(
