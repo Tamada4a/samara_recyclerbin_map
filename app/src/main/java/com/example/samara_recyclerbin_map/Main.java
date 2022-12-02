@@ -64,6 +64,7 @@ import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -76,7 +77,8 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
 
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
     private final Point TEST = new Point(53.212857,50.182195);
-
+    private ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
+    private ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
     private MapView mapview;
     private MapObjectCollection mapObjects;
     private Point clickedPoint;
@@ -89,8 +91,8 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     //массив, в котором отражено, нажата ли кнопка(какая у нее иконка - цветная или нет)
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-    //private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
-    //"Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
+    private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
+    "Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,16 +168,19 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
             }
         });
 
+
         papers_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!checked[0]){
                     checked[0] = true;
                     papers_menu_button.setBackgroundResource(R.drawable.papers_selected);
+
                 }else if(checked[0]){
                     checked[0] = false;
                     papers_menu_button.setBackgroundResource(R.drawable.papers);
                 }
+                searchTypes();
             }
         });
 
@@ -189,6 +194,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[1] = false;
                     glass_menu_button.setBackgroundResource(R.drawable.glass);
                 }
+                searchTypes();
             }
         });
 
@@ -202,6 +208,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[2] = false;
                     plastic_menu_button.setBackgroundResource(R.drawable.plastic);
                 }
+                searchTypes();
             }
         });
 
@@ -215,6 +222,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[3] = false;
                     metal_menu_button.setBackgroundResource(R.drawable.metal);
                 }
+                searchTypes();
             }
         });
 
@@ -228,6 +236,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[4] = false;
                     cloths_menu_button.setBackgroundResource(R.drawable.cloths);
                 }
+                searchTypes();
             }
         });
 
@@ -241,6 +250,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[5] = false;
                     other_menu_button.setBackgroundResource(R.drawable.other);
                 }
+                searchTypes();
             }
         });
 
@@ -254,6 +264,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[6] = false;
                     dangerous_menu_button.setBackgroundResource(R.drawable.dangerous);
                 }
+                searchTypes();
             }
         });
 
@@ -267,6 +278,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[7] = false;
                     batteries_menu_button.setBackgroundResource(R.drawable.batteries);
                 }
+                searchTypes();
             }
         });
 
@@ -280,6 +292,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[8] = false;
                     lamp_menu_button.setBackgroundResource(R.drawable.lamp);
                 }
+                searchTypes();
             }
         });
 
@@ -293,6 +306,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[9] = false;
                     appliances_menu_button.setBackgroundResource(R.drawable.appliances);
                 }
+                searchTypes();
             }
         });
 
@@ -306,6 +320,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[10] = false;
                     tetra_menu_button.setBackgroundResource(R.drawable.tetra);
                 }
+                searchTypes();
             }
         });
 
@@ -319,6 +334,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[11] = false;
                     lid_menu_button.setBackgroundResource(R.drawable.lid);
                 }
+                searchTypes();
             }
         });
 
@@ -332,29 +348,52 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                     checked[12] = false;
                     tires_menu_button.setBackgroundResource(R.drawable.tires);
                 }
+                searchTypes();
             }
         });
 
         //просто два примера
-        String[] chosenTypes1 = {"Plastic", "Metal", "Lid", "Other", "Lamp"}; //типы, что можно переработать
+        String[] chosenTypes1 = {"Paper", "Plastic", "Metal", "Lid", "Other", "Lamp"}; //типы, что можно переработать
         Bitmap bitmap1 = drawMarker(chosenTypes1); //получаем битмап из функции
         PlacemarkMapObject markerTest = mapObjects.addPlacemark(TEST, ImageProvider.fromBitmap(bitmap1));
+        listMarkers.add(markerTest);
         //маркеру добавляем информацию
         markerTest.setUserData(new RecyclingPoint(TEST, "Русь", "ТЦ Русь", "Что-то", chosenTypes1));
+        listPoints.add(new RecyclingPoint(TEST, "Русь", "ТЦ Русь", "Что-то", chosenTypes1));
         //добавляем обработку нажатия на него. Потом через это можно будет сделать как на сайте
         markerTest.addTapListener(placeMarkTapListener);
 
         String[] chosenTypes2 = {"Tetra", "Batteries", "Clothes", "Glass", "Dangerous"};
         Bitmap bitmap2 = drawMarker(chosenTypes2);
         PlacemarkMapObject home = mapObjects.addPlacemark(START_POINT, ImageProvider.fromBitmap(bitmap2));
+        listMarkers.add(home);
+        listPoints.add(new RecyclingPoint(START_POINT, "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
         home.setUserData(new RecyclingPoint(START_POINT, "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
         home.addTapListener(placeMarkTapListener);
 
         String[] chosenTypes3 = {"Tetra", "Batteries", "Clothes", "Glass", "Dangerous"};
         Bitmap bitmap3 = drawMarker(chosenTypes2);
         PlacemarkMapObject home2 = mapObjects.addPlacemark(new Point(53.2108275862854, 50.178027993319), ImageProvider.fromBitmap(bitmap3));
+        listMarkers.add(home2);
+        listPoints.add(new RecyclingPoint(new Point(53.2108275862854, 50.178027993319), "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
         home2.setUserData(new RecyclingPoint(new Point(53.2108275862854, 50.178027993319), "Аэрокос", "СГАУ", "Что-то", chosenTypes2));
         home2.addTapListener(placeMarkTapListener);
+    }
+
+    protected void searchTypes(){
+        for (int i = 0; i < listPoints.size(); i++){
+            listMarkers.get(i).setVisible(true);
+        }
+        ArrayList<String> temp = new ArrayList<String>();
+        for (int i = 0; i < checked.length; i++) {
+            if (checked[i]) temp.add(types[i]);
+        }
+        for (int i = 0; i < listPoints.size(); i++){
+            String[] types = listPoints.get(i).getTypes();
+            for (String type : temp){
+                if(!Arrays.asList(types).contains(type)) listMarkers.get(i).setVisible(false);
+            }
+        }
     }
 
     @Override
@@ -408,7 +447,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
     private void showPointInfo(RecyclingPoint data){
         AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
                 .setTitle(data.getLocationName())
-                .setMessage(data.getInfo())
+                .setMessage(data.getInfo() + "\n" + data.getLocation())
                 .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -647,7 +686,7 @@ public class Main extends Activity implements UserLocationObjectListener, Sessio
                         .setScale(0.5f)
         );
 
-        userLocationView.getAccuracyCircle().setFillColor(Color.BLUE & 0x99ffffff);
+        userLocationView.getAccuracyCircle().setFillColor(R.color.theme & 0x99ffffff);
     }
 
     @Override

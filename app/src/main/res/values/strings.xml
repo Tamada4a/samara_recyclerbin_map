@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Samara_recyclerbin_map</string>
+    <string name="app_name">TRashmAP</string>
     <string name="network_error_message">Network error</string>
     <string name="remote_error_message">Remote server error</string>
     <string name="unknown_error_message">Unknown error</string>

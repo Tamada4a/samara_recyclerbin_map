@@ -21,4 +21,6 @@
     <color name="tetra_color">#9CD7A3</color>
     <color name="lid_color">#E0DA24</color>
     <color name="tires_color">#3D0909</color>
+    <color name="theme">#703786</color>
+    <color name="theme_navigation">#EDC5FD</color>
 </resources>
