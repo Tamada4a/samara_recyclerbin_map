@@ -115,8 +115,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private View sideMenuHeader;
 
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
-    private boolean isCustomPoint = false;
-    private boolean isCreatingWithCustomPoint = false;
+    private boolean isCustomPoint = false; //нужна для проверки в tapListener'e карты
+    private boolean isCreatingWithCustomPoint = false; //по ней удаляю маршрут, есл построен через кастомный маркер
 
     private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     "Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
@@ -200,7 +200,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
-
 
         papers_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -450,6 +449,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
     };
 
+    //обработка нажатия на карту
     private InputListener mapTapListener = new InputListener() {
         @Override
         public void onMapTap(@NonNull Map map, @NonNull Point point) {
@@ -459,7 +459,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     destination = mapObjects.addPlacemark(point, ImageProvider.fromBitmap(bitmapDest));
                 } else {
                     destination.setGeometry(point);
-
                     destination.setVisible(true);
                 }
                 isCustomPoint = false;
@@ -499,16 +498,18 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 .setPositiveButton("Точка на карте", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        //очищаю предыдущий маршрут
                         deleteCurrentPath();
-                        Toast.makeText(Main.this, "Выберите точку на карте", Toast.LENGTH_SHORT).show();
                         isCustomPoint = true;
                         isCreatingWithCustomPoint = true;
+                        Toast.makeText(Main.this, "Выберите точку на карте", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Моя геолокация", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if(userLocationLayer.cameraPosition() != null) {
+                            //если выбрали геолокацию, то блочу все, связанное с кастомным, чтоб не ломалось
                             isCustomPoint = false;
                             isCreatingWithCustomPoint = false;
                             showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
@@ -544,6 +545,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
+                        //обрабатываю закрытие окошка. Если маркер был поставлен, то удаляем
                         if(isCreatingWithCustomPoint) {
                             isCustomPoint = false;
                             destination.setVisible(false);
@@ -554,6 +556,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         routerOptions.show();
     }
 
+    //перевод svg в битмап
     private Bitmap drawDestinationMarker(){
         Drawable drawable = ContextCompat.getDrawable(this, R.drawable.custom_point);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
