@@ -92,7 +92,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private UserLocationLayer userLocationLayer;
 
     private List<PolylineMapObject> currentPath = new ArrayList<>();
-    private String typeOfRoute = "";
 
     private ImageButton papers_menu_button;
     private ImageButton glass_menu_button;
@@ -649,7 +648,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     }
     
     private void createDrivingRoute(Point start) {
-        typeOfRoute = "drive";
         List<RequestPoint> points = new ArrayList<>();
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
@@ -660,7 +658,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     }
 
     private void createPedestrianRoute(Point start) {
-        typeOfRoute = "pedestrian";
         List<RequestPoint> points = new ArrayList<>();
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
@@ -697,6 +694,9 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                         list.get(0).getGeometry(), section.getGeometry()));
             }
         }
+        else{
+            Toast.makeText(this, "Невозможно добраться пешком", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -731,7 +731,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
         else {
             Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
-            System.out.println("Невозможно добраться на машине");
         }
     }
 
