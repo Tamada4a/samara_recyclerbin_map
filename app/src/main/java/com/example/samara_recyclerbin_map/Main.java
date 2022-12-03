@@ -540,6 +540,16 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     public void onClick(DialogInterface dialogInterface, int i) {
                         createPedestrianRoute(startPoint);
                     }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        if(isCreatingWithCustomPoint) {
+                            isCustomPoint = false;
+                            destination.setVisible(false);
+                            isCreatingWithCustomPoint = false;
+                        }
+                    }
                 });
         routerOptions.show();
     }
@@ -727,11 +737,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         if(list.size() > 0) {
             PolylineMapObject polylineMapObject = mapObjects.addPolyline(list.get(0).getGeometry());
             currentPath.add(polylineMapObject);
-            isCreatingWithCustomPoint = false;
         }
         else {
             Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
         }
+        isCreatingWithCustomPoint = false;
     }
 
     @Override
