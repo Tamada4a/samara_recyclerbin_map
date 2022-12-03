@@ -642,8 +642,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             for (PolylineMapObject poly : currentPath)
                 mapObjects.remove(poly);
             currentPath = new ArrayList<>();
-        }else{
-            Toast.makeText(this, "Вы не проложили путь!", Toast.LENGTH_SHORT).show();
         }
         if (destination != null) destination.setVisible(false);
         isCustomPoint = false;
