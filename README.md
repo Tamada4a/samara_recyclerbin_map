@@ -20,4 +20,3 @@
 ### Авторы:
 - [Tamada4a](https://github.com/Tamada4a) - Симовин Кирилл
 - [ugly4](https://github.com/ugly4) - Федякин Александр
-- [tastebublik](https://github.com/tastebublik) - Бубнов Святослав
