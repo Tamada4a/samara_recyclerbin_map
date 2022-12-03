@@ -21,20 +21,22 @@
        android:layout_width="60dp"
        android:layout_height="60dp"
        android:layout_marginStart="30dp"
-       android:layout_marginTop="550dp"
+       android:layout_marginBottom="40dp"
        android:background="@null"
        android:scaleType="fitEnd"
+       android:layout_alignParentBottom="true"
        android:src="@drawable/deleteway" />
 
    <ImageButton
        android:id="@+id/pointer"
        android:layout_width="60dp"
        android:layout_height="60dp"
-       android:layout_alignParentEnd="true"
-       android:layout_marginTop="550dp"
        android:layout_marginEnd="30dp"
+       android:layout_marginBottom="40dp"
        android:background="@null"
        android:scaleType="fitEnd"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
        android:src="@drawable/pointer" />
 
    <ImageButton

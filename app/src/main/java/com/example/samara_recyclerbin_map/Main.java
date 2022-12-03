@@ -1,6 +1,5 @@
 package com.example.samara_recyclerbin_map;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -77,7 +76,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private DrivingSession drivingSession;
 
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
-    private final Point TEST = new Point(53.212857,50.182195);
+
     private ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
     private ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
     private MapView mapview;
@@ -91,7 +90,27 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private List<PolylineMapObject> currentPath = new ArrayList<>();
     private String typeOfRoute = "";
 
-    //массив, в котором отражено, нажата ли кнопка(какая у нее иконка - цветная или нет)
+    private ImageButton papers_menu_button;
+    private ImageButton glass_menu_button;
+    private ImageButton plastic_menu_button;
+    private ImageButton metal_menu_button;
+    private ImageButton cloths_menu_button;
+    private ImageButton other_menu_button;
+    private ImageButton dangerous_menu_button;
+    private ImageButton batteries_menu_button;
+    private ImageButton lamp_menu_button;
+    private ImageButton appliances_menu_button;
+    private ImageButton tetra_menu_button;
+    private ImageButton lid_menu_button;
+    private ImageButton tires_menu_button;
+    private ImageButton pointer;
+    private ImageButton removePath_button;
+    private ImageButton menu_button;
+
+    private DrawerLayout drawerLayout;
+    private NavigationView sideMenu;
+    private View sideMenuHeader;
+
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
 
     private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
@@ -121,26 +140,28 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
-        ImageButton pointer = findViewById(R.id.pointer);
-        ImageButton removePath_button = findViewById(R.id.removePath_button);
-        ImageButton menu_button = findViewById(R.id.menu_button);
-        NavigationView sideMenu = findViewById(R.id.nav_view);
-        View sideMenuHeader = sideMenu.getHeaderView(0);
-        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        pointer = findViewById(R.id.pointer);
+        removePath_button = findViewById(R.id.removePath_button);
+        menu_button = findViewById(R.id.menu_button);
+        sideMenu = findViewById(R.id.nav_view);
+
+        sideMenuHeader = sideMenu.getHeaderView(0);
+        drawerLayout = findViewById(R.id.drawerLayout);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        ImageButton papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
-        ImageButton glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
-        ImageButton plastic_menu_button = sideMenuHeader.findViewById(R.id.plastic_menu_button);
-        ImageButton metal_menu_button = sideMenuHeader.findViewById(R.id.metal_menu_button);
-        ImageButton cloths_menu_button = sideMenuHeader.findViewById(R.id.cloths_menu_button);
-        ImageButton other_menu_button = sideMenuHeader.findViewById(R.id.other_menu_button);
-        ImageButton dangerous_menu_button = sideMenuHeader.findViewById(R.id.dangerous_menu_button);
-        ImageButton batteries_menu_button = sideMenuHeader.findViewById(R.id.batteries_menu_button);
-        ImageButton lamp_menu_button = sideMenuHeader.findViewById(R.id.lamp_menu_button);
-        ImageButton appliances_menu_button = sideMenuHeader.findViewById(R.id.appliances_menu_button);
-        ImageButton tetra_menu_button = sideMenuHeader.findViewById(R.id.tetra_menu_button);
-        ImageButton lid_menu_button = sideMenuHeader.findViewById(R.id.lid_menu_button);
-        ImageButton tires_menu_button = sideMenuHeader.findViewById(R.id.tires_menu_button);
+
+        papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
+        glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
+        plastic_menu_button = sideMenuHeader.findViewById(R.id.plastic_menu_button);
+        metal_menu_button = sideMenuHeader.findViewById(R.id.metal_menu_button);
+        cloths_menu_button = sideMenuHeader.findViewById(R.id.cloths_menu_button);
+        other_menu_button = sideMenuHeader.findViewById(R.id.other_menu_button);
+        dangerous_menu_button = sideMenuHeader.findViewById(R.id.dangerous_menu_button);
+        batteries_menu_button = sideMenuHeader.findViewById(R.id.batteries_menu_button);
+        lamp_menu_button = sideMenuHeader.findViewById(R.id.lamp_menu_button);
+        appliances_menu_button = sideMenuHeader.findViewById(R.id.appliances_menu_button);
+        tetra_menu_button = sideMenuHeader.findViewById(R.id.tetra_menu_button);
+        lid_menu_button = sideMenuHeader.findViewById(R.id.lid_menu_button);
+        tires_menu_button = sideMenuHeader.findViewById(R.id.tires_menu_button);
 
         pointer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -358,14 +379,383 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         initMarkers();
     }
 
-    protected void initMarkers(){
+
+    protected void searchTypes(){
+        for (int i = 0; i < listPoints.size(); i++){
+            listMarkers.get(i).setVisible(true);
+        }
+        ArrayList<String> temp = new ArrayList<String>();
+        for (int i = 0; i < checked.length; i++) {
+            if (checked[i]) temp.add(types[i]);
+        }
+        for (int i = 0; i < listPoints.size(); i++){
+            String[] types = listPoints.get(i).getTypes();
+            for (String type : temp){
+                if(!Arrays.asList(types).contains(type)) listMarkers.get(i).setVisible(false);
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        mapview.onStop();
+        MapKitFactory.getInstance().onStop();
+        super.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MapKitFactory.getInstance().onStart();
+        mapview.onStart();
+    }
+
+    //проверка нужных разрешений на геолокацию
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                "android.permission.ACCESS_FINE_LOCATION")
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{"android.permission.ACCESS_FINE_LOCATION"},
+                    PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(this,
+                "android.permission.ACCESS_COARSE_LOCATION")
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{"android.permission.ACCESS_COARSE_LOCATION"},
+                    PERMISSIONS_REQUEST_FINE_LOCATION);
+        }
+    }
+
+    private MapObjectTapListener placeMarkTapListener = new MapObjectTapListener() {
+        @Override
+        public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+            if(mapObject instanceof PlacemarkMapObject){
+                Object userData = mapObject.getUserData();
+
+                if(userData instanceof RecyclingPoint){
+                    RecyclingPoint data = (RecyclingPoint) userData;
+                    clickedPoint = data.getPoint();
+                    showPointInfo(data);
+                }
+            }
+            return true;
+        }
+    };
+
+    private MapObjectTapListener destinationTapListener = new MapObjectTapListener() {
+        @Override
+        public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+            if(mapObject instanceof PlacemarkMapObject){
+                destination.setDraggable(false);
+                showCreateRouteOptions(point);
+
+            }
+            return true;
+        }
+    };
+
+    private void showPointInfo(RecyclingPoint data){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
+                .setTitle(data.getLocationName())
+                .setMessage(data.getInfo() + "\n" + data.getLocation())
+                .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //if будет лишний и в showCreateRouteOptions не будет параметров
+                        if(userLocationLayer.cameraPosition() != null) {
+                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
+                            dialogInterface.cancel();
+                        }else{
+                            Toast.makeText(Main.this, "Откуда Вы начнёте путь?", Toast.LENGTH_SHORT).show();
+                            if (destination == null) {
+                                destination = mapObjects.addPlacemark(mapview.getMap().getCameraPosition().getTarget(), ImageProvider.fromBitmap(bitmapDest));
+                                destination.addTapListener(destinationTapListener);
+                            } else {
+                                destination.setGeometry(mapview.getMap().getCameraPosition().getTarget());
+
+                                destination.setVisible(true);
+                            }
+                            destination.setDraggable(true);
+                            destination.setText("Я");
+                        }
+                    }
+                })
+                .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+        dialog.show();
+    }
+
+    //отсюда вызывать надо будет то, что ты сделаешь с кастомным местоположением
+    //и тот if перенести будет сюда: если геолокация офнута, то твое
+    //и startPoint определяется через твой метод, если включена, то
+    //startPoint = userLocationLayer.cameraPosition().getTarget()
+    private void showCreateRouteOptions(Point startPoint) {
+        AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
+                .setTitle("Как вы хотите добраться?")
+                .setPositiveButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setNeutralButton("На машине", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        createDrivingRoute(startPoint);
+                    }
+                })
+                .setNegativeButton("Пешком", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        createPedestrianRoute(startPoint);
+                    }
+                });
+        routerOptions.show();
+    }
+
+    private Bitmap drawDestination(){
+        int picSize = 80;
+        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        // отрисовка плейсмарка
+        Paint paint = new Paint();
+        paint.setColor(getResources().getColor(R.color.theme));
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
+        return bitmap;
+    }
+    private Bitmap drawMarker(@NonNull String[] chosenTypes){
+
+        int length = chosenTypes.length;
+        int picSize = 80;
+
+        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        float sweepAngel = (float)360 / length;
+        float startAngel = 0;
+
+        RectF pi = new RectF(0, 0, picSize, picSize);
+
+        int color = 0;
+
+        for (String chosenType : chosenTypes) {
+            switch (chosenType) {
+                case "Paper":
+                    color = ContextCompat.getColor(this, R.color.paper_color);
+                    break;
+                case "Glass":
+                    color = ContextCompat.getColor(this, R.color.glass_color);
+                    break;
+                case "Plastic":
+                    color = ContextCompat.getColor(this, R.color.plastic_color);
+                    break;
+                case "Metal":
+                    color = ContextCompat.getColor(this, R.color.metal_color);
+                    break;
+                case "Clothes":
+                    color = ContextCompat.getColor(this, R.color.clothes_color);
+                    break;
+                case "Other":
+                    color = ContextCompat.getColor(this, R.color.other_color);
+                    break;
+                case "Dangerous":
+                    color = ContextCompat.getColor(this, R.color.dangerous_color);
+                    break;
+                case "Batteries":
+                    color = ContextCompat.getColor(this, R.color.batteries_color);
+                    break;
+                case "Lamp":
+                    color = ContextCompat.getColor(this, R.color.lamp_color);
+                    break;
+                case "Appliances":
+                    color = ContextCompat.getColor(this, R.color.appliances_color);
+                    break;
+                case "Tetra":
+                    color = ContextCompat.getColor(this, R.color.tetra_color);
+                    break;
+                case "Lid":
+                    color = ContextCompat.getColor(this, R.color.lid_color);
+                    break;
+                case "Tires":
+                    color = ContextCompat.getColor(this, R.color.tires_color);
+                    break;
+                default:
+                    color = ContextCompat.getColor(this, R.color.theme);
+            }
+
+            Paint paint = new Paint();
+
+            paint.setColor(color);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            canvas.drawArc(pi, startAngel, sweepAngel, true, paint);
+            startAngel += sweepAngel;
+        }
+
+        Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        circlePaint.setColor(Color.TRANSPARENT);
+        circlePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
+
+        canvas.drawCircle((float)(picSize / 2), (float)(picSize / 2), (float)(picSize / 3), circlePaint);
+        
+        return bitmap;
+    }
+
+    private void deleteCurrentPath(){
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath)
+                mapObjects.remove(poly);
+            currentPath = new ArrayList<>();
+            if (destination != null) destination.setVisible(false);
+        }else{
+            Toast.makeText(this, "Вы не проложили путь!", Toast.LENGTH_SHORT).show();
+            if (destination != null) destination.setVisible(false);
+        }
+    }
+    
+    private void createDrivingRoute(Point start) {
+        typeOfRoute = "drive";
+        List<RequestPoint> points = new ArrayList<>();
+
+        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
+
+        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
+        drivingSession = drivingRouter.requestRoutes(points, new DrivingOptions(), new VehicleOptions(), this);
+    }
+
+    private void createPedestrianRoute(Point start) {
+        typeOfRoute = "pedestrian";
+        List<RequestPoint> points = new ArrayList<>();
+
+        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
+        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
+
+        pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
+        pedestrianRouter.requestRoutes(points, new TimeOptions(), this);
+    }
+
+    private void drawPath(Polyline geometry) {
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath)
+                mapObjects.remove(poly);
+            currentPath = new ArrayList<>();
+        }
+
+        PolylineMapObject polylineMapObject = mapObjects.addPolyline(geometry);
+        polylineMapObject.setStrokeColor(R.color.purple_200);
+
+        currentPath.add(polylineMapObject);
+    }
+
+    @Override
+    public void onMasstransitRoutes(@NonNull List<Route> list) {
+        if (list.size() > 0) {
+            for (Section section : list.get(0).getSections()) {
+                drawPath(SubpolylineHelper.subpolyline(
+                        list.get(0).getGeometry(), section.getGeometry()));
+            }
+        }
+    }
+
+    @Override
+    public void onMasstransitRoutesError(@NonNull Error error) {
+        String errorMessage = getString(R.string.unknown_error_message);
+        if (error instanceof RemoteError) {
+            errorMessage = getString(R.string.remote_error_message);
+        } else if (error instanceof NetworkError) {
+            errorMessage = getString(R.string.network_error_message);
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
+        if(currentPath.size() != 0){
+            for (PolylineMapObject poly : currentPath) {
+                mapObjects.remove(poly);
+            }
+            currentPath = new ArrayList<>();
+        }
+        if(list.size() > 0) {
+            for (DrivingRoute route : list) {
+                PolylineMapObject polylineMapObject = mapObjects.addPolyline(route.getGeometry());
+                currentPath.add(polylineMapObject);
+            }
+        }
+        else {
+            Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
+            System.out.println("Невозможно добраться на машине");
+        }
+    }
+
+    @Override
+    public void onDrivingRoutesError(@NonNull Error error) {
+        String errorMessage = getString(R.string.unknown_error_message);
+        if (error instanceof RemoteError) {
+            errorMessage = getString(R.string.remote_error_message);
+        } else if (error instanceof NetworkError) {
+            errorMessage = getString(R.string.network_error_message);
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
+        /*userLocationLayer.setAnchor(
+                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
+                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));*/
+
+        userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.navigation_marker));
+
+
+        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
+
+        pinIcon.setIcon(
+                "pin",
+                ImageProvider.fromResource(this, R.drawable.search_result),
+                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
+                        .setRotationType(RotationType.ROTATE)
+                        .setZIndex(1f)
+                        .setScale(0.5f)
+        );
+
+        userLocationView.getAccuracyCircle().setFillColor(R.color.theme & 0x99ffffff);
+    }
+
+    @Override
+    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
+
+    }
+
+    @Override
+    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
+        if (userLocationLayer.cameraPosition() != null && currentPath.size() > 0) {
+            Point userPoint = userLocationLayer.cameraPosition().getTarget();
+            if (typeOfRoute.equals("drive")) {
+                createDrivingRoute(userPoint);
+            }else if(typeOfRoute.equals("pedestrian")){
+                createPedestrianRoute(userPoint);
+            }
+        }
+    }
+
+    private void initMarkers(){
         //Батарейки DNS Русь
         String[] batteries = {"Batteries"}; //батарейки
         Bitmap bitmapBatteries = drawMarker(batteries); //получаем битмап из функции
-        PlacemarkMapObject markerTest1 = mapObjects.addPlacemark(TEST, ImageProvider.fromBitmap(bitmapBatteries));
+        PlacemarkMapObject markerTest1 = mapObjects.addPlacemark(new Point(53.212857,50.182195), ImageProvider.fromBitmap(bitmapBatteries));
         listMarkers.add(markerTest1);
         //маркеру добавляем информацию
-        RecyclingPoint point1 = new RecyclingPoint(TEST, "Московское ш., 29. ТЦ Русь. Магазин DNS", "Контейнер для старых батарей", "Контейнер для батареек Duracell находится на входе в гипермаркет DNS", batteries);
+        RecyclingPoint point1 = new RecyclingPoint(new Point(53.212857,50.182195), "Московское ш., 29. ТЦ Русь. Магазин DNS", "Контейнер для старых батарей", "Контейнер для батареек Duracell находится на входе в гипермаркет DNS", batteries);
         markerTest1.setUserData(point1);
         listPoints.add(point1);
         //добавляем обработку нажатия на него. Потом через это можно будет сделать как на сайте
@@ -841,372 +1231,5 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         markerTest51.setUserData(point51);
         listPoints.add(point51);
         markerTest51.addTapListener(placeMarkTapListener);
-    }
-    protected void searchTypes(){
-        for (int i = 0; i < listPoints.size(); i++){
-            listMarkers.get(i).setVisible(true);
-        }
-        ArrayList<String> temp = new ArrayList<String>();
-        for (int i = 0; i < checked.length; i++) {
-            if (checked[i]) temp.add(types[i]);
-        }
-        for (int i = 0; i < listPoints.size(); i++){
-            String[] types = listPoints.get(i).getTypes();
-            for (String type : temp){
-                if(!Arrays.asList(types).contains(type)) listMarkers.get(i).setVisible(false);
-            }
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        mapview.onStop();
-        MapKitFactory.getInstance().onStop();
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        MapKitFactory.getInstance().onStart();
-        mapview.onStart();
-    }
-
-    //проверка нужных разрешений на геолокацию
-    private void requestLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                "android.permission.ACCESS_FINE_LOCATION")
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{"android.permission.ACCESS_FINE_LOCATION"},
-                    PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-        if (ContextCompat.checkSelfPermission(this,
-                "android.permission.ACCESS_COARSE_LOCATION")
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{"android.permission.ACCESS_COARSE_LOCATION"},
-                    PERMISSIONS_REQUEST_FINE_LOCATION);
-        }
-    }
-
-    private MapObjectTapListener placeMarkTapListener = new MapObjectTapListener() {
-        @Override
-        public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
-            if(mapObject instanceof PlacemarkMapObject){
-                Object userData = mapObject.getUserData();
-
-                if(userData instanceof RecyclingPoint){
-                    RecyclingPoint data = (RecyclingPoint) userData;
-                    clickedPoint = data.getPoint();
-                    showPointInfo(data);
-                }
-            }
-            return true;
-        }
-    };
-
-    private MapObjectTapListener destinationTapListener = new MapObjectTapListener() {
-        @Override
-        public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
-            if(mapObject instanceof PlacemarkMapObject){
-                destination.setDraggable(false);
-                showCreateRouteOptions(point);
-
-            }
-            return true;
-        }
-    };
-
-    private void showPointInfo(RecyclingPoint data){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
-                .setTitle(data.getLocationName())
-                .setMessage(data.getInfo() + "\n" + data.getLocation())
-                .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //if будет лишний и в showCreateRouteOptions не будет параметров
-                        if(userLocationLayer.cameraPosition() != null) {
-                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
-                            dialogInterface.cancel();
-                        }else{
-                            Toast.makeText(Main.this, "Откуда Вы начнёте путь?", Toast.LENGTH_SHORT).show();
-                            if (destination == null) {
-                                destination = mapObjects.addPlacemark(mapview.getMap().getCameraPosition().getTarget(), ImageProvider.fromBitmap(bitmapDest));
-                                destination.addTapListener(destinationTapListener);
-                            } else {
-                                destination.setGeometry(mapview.getMap().getCameraPosition().getTarget());
-
-                                destination.setVisible(true);
-                            }
-                            destination.setDraggable(true);
-                            destination.setText("Я");
-                        }
-                    }
-                })
-                .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-        dialog.show();
-    }
-
-    //отсюда вызывать надо будет то, что ты сделаешь с кастомным местоположением
-    //и тот if перенести будет сюда: если геолокация офнута, то твое
-    //и startPoint определяется через твой метод, если включена, то
-    //startPoint = userLocationLayer.cameraPosition().getTarget()
-    private void showCreateRouteOptions(Point startPoint) {
-        AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
-                .setTitle("Как вы хотите добраться?")
-                .setPositiveButton("Отмена", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
-                .setNeutralButton("На машине", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        createDrivingRoute(startPoint);
-                    }
-                })
-                .setNegativeButton("Пешком", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        createPedestrianRoute(startPoint);
-                    }
-                });
-        routerOptions.show();
-    }
-
-    private Bitmap drawDestination(){
-        int picSize = 80;
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
-        Paint paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.theme));
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
-        return bitmap;
-    }
-    private Bitmap drawMarker(@NonNull String[] chosenTypes){
-
-        int length = chosenTypes.length;
-        int picSize = 80;
-
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        float sweepAngel = (float)360 / length;
-        float startAngel = 0;
-
-        RectF pi = new RectF(0, 0, picSize, picSize);
-
-        int color = 0;
-
-        for (String chosenType : chosenTypes) {
-            switch (chosenType) {
-                case "Paper":
-                    color = ContextCompat.getColor(this, R.color.paper_color);
-                    break;
-                case "Glass":
-                    color = ContextCompat.getColor(this, R.color.glass_color);
-                    break;
-                case "Plastic":
-                    color = ContextCompat.getColor(this, R.color.plastic_color);
-                    break;
-                case "Metal":
-                    color = ContextCompat.getColor(this, R.color.metal_color);
-                    break;
-                case "Clothes":
-                    color = ContextCompat.getColor(this, R.color.clothes_color);
-                    break;
-                case "Other":
-                    color = ContextCompat.getColor(this, R.color.other_color);
-                    break;
-                case "Dangerous":
-                    color = ContextCompat.getColor(this, R.color.dangerous_color);
-                    break;
-                case "Batteries":
-                    color = ContextCompat.getColor(this, R.color.batteries_color);
-                    break;
-                case "Lamp":
-                    color = ContextCompat.getColor(this, R.color.lamp_color);
-                    break;
-                case "Appliances":
-                    color = ContextCompat.getColor(this, R.color.appliances_color);
-                    break;
-                case "Tetra":
-                    color = ContextCompat.getColor(this, R.color.tetra_color);
-                    break;
-                case "Lid":
-                    color = ContextCompat.getColor(this, R.color.lid_color);
-                    break;
-                case "Tires":
-                    color = ContextCompat.getColor(this, R.color.tires_color);
-                    break;
-                default:
-                    color = ContextCompat.getColor(this, R.color.theme);
-            }
-
-            Paint paint = new Paint();
-
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.FILL_AND_STROKE);
-            canvas.drawArc(pi, startAngel, sweepAngel, true, paint);
-            startAngel += sweepAngel;
-        }
-
-        Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        circlePaint.setColor(Color.TRANSPARENT);
-        circlePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
-
-        canvas.drawCircle((float)(picSize / 2), (float)(picSize / 2), (float)(picSize / 3), circlePaint);
-        
-        return bitmap;
-    }
-
-    private void deleteCurrentPath(){
-        if(currentPath.size() != 0){
-            for (PolylineMapObject poly : currentPath)
-                mapObjects.remove(poly);
-            currentPath = new ArrayList<>();
-            if (destination != null) destination.setVisible(false);
-        }else{
-            Toast.makeText(this, "Вы не проложили путь!", Toast.LENGTH_SHORT).show();
-            if (destination != null) destination.setVisible(false);
-        }
-    }
-    
-    private void createDrivingRoute(Point start) {
-        typeOfRoute = "drive";
-        List<RequestPoint> points = new ArrayList<>();
-
-        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
-        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
-
-        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
-        drivingSession = drivingRouter.requestRoutes(points, new DrivingOptions(), new VehicleOptions(), this);
-    }
-
-    private void createPedestrianRoute(Point start) {
-        typeOfRoute = "pedestrian";
-        List<RequestPoint> points = new ArrayList<>();
-
-        points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
-        points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
-
-        pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
-        pedestrianRouter.requestRoutes(points, new TimeOptions(), this);
-    }
-
-    private void drawPath(Polyline geometry) {
-        if(currentPath.size() != 0){
-            for (PolylineMapObject poly : currentPath)
-                mapObjects.remove(poly);
-            currentPath = new ArrayList<>();
-        }
-
-        PolylineMapObject polylineMapObject = mapObjects.addPolyline(geometry);
-        polylineMapObject.setStrokeColor(R.color.purple_200);
-
-        currentPath.add(polylineMapObject);
-    }
-
-    @Override
-    public void onMasstransitRoutes(@NonNull List<Route> list) {
-        if (list.size() > 0) {
-            for (Section section : list.get(0).getSections()) {
-                drawPath(SubpolylineHelper.subpolyline(
-                        list.get(0).getGeometry(), section.getGeometry()));
-            }
-        }
-    }
-
-    @Override
-    public void onMasstransitRoutesError(@NonNull Error error) {
-        String errorMessage = getString(R.string.unknown_error_message);
-        if (error instanceof RemoteError) {
-            errorMessage = getString(R.string.remote_error_message);
-        } else if (error instanceof NetworkError) {
-            errorMessage = getString(R.string.network_error_message);
-        }
-
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
-        if(currentPath.size() != 0){
-            for (PolylineMapObject poly : currentPath) {
-                mapObjects.remove(poly);
-            }
-            currentPath = new ArrayList<>();
-        }
-        if(list.size() > 0) {
-            for (DrivingRoute route : list) {
-                PolylineMapObject polylineMapObject = mapObjects.addPolyline(route.getGeometry());
-                currentPath.add(polylineMapObject);
-            }
-        }
-        else {
-            Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
-            System.out.println("Невозможно добраться на машине");
-        }
-    }
-
-    @Override
-    public void onDrivingRoutesError(@NonNull Error error) {
-        String errorMessage = getString(R.string.unknown_error_message);
-        if (error instanceof RemoteError) {
-            errorMessage = getString(R.string.remote_error_message);
-        } else if (error instanceof NetworkError) {
-            errorMessage = getString(R.string.network_error_message);
-        }
-
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onObjectAdded(@NonNull UserLocationView userLocationView) {
-        /*userLocationLayer.setAnchor(
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));*/
-
-        userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.navigation_marker));
-
-
-        CompositeIcon pinIcon = userLocationView.getPin().useCompositeIcon();
-
-        pinIcon.setIcon(
-                "pin",
-                ImageProvider.fromResource(this, R.drawable.search_result),
-                new IconStyle().setAnchor(new PointF(0.5f, 0.5f))
-                        .setRotationType(RotationType.ROTATE)
-                        .setZIndex(1f)
-                        .setScale(0.5f)
-        );
-
-        userLocationView.getAccuracyCircle().setFillColor(R.color.theme & 0x99ffffff);
-    }
-
-    @Override
-    public void onObjectRemoved(@NonNull UserLocationView userLocationView) {
-
-    }
-
-    @Override
-    public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-        if (userLocationLayer.cameraPosition() != null && currentPath.size() > 0) {
-            Point userPoint = userLocationLayer.cameraPosition().getTarget();
-            if (typeOfRoute.equals("drive")) {
-                createDrivingRoute(userPoint);
-            }else if(typeOfRoute.equals("pedestrian")){
-                createPedestrianRoute(userPoint);
-            }
-        }
     }
 }
