@@ -149,6 +149,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         pointer = findViewById(R.id.pointer);
         removePath_button = findViewById(R.id.removePath_button);
+        removePath_button.setVisibility(View.GONE); //кнопку "удалить маршрут" сначала не видно
         menu_button = findViewById(R.id.menu_button);
         sideMenu = findViewById(R.id.nav_view);
 
@@ -191,6 +192,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             @Override
             public void onClick(View view) {
                 deleteCurrentPath();
+                removePath_button.setVisibility(View.GONE); //когда удаляем маршрут кнопка пропадает
             }
         });
 
@@ -668,6 +670,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
         drivingSession = drivingRouter.requestRoutes(points, new DrivingOptions(), new VehicleOptions(), this);
+        removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 
     private void createPedestrianRoute(Point start) {
@@ -678,6 +681,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
         pedestrianRouter.requestRoutes(points, new TimeOptions(), this);
+        removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 
     private void drawPath(Polyline geometry) {
