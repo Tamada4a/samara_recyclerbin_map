@@ -510,6 +510,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if(userLocationLayer.cameraPosition() != null) {
+                            isCustomPoint = false;
                             isCreatingWithCustomPoint = false;
                             showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
                         }else{
@@ -558,6 +559,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         return bitmap;
     }
+
     private Bitmap drawMarker(@NonNull String[] chosenTypes){
 
         int length = chosenTypes.length;
