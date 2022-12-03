@@ -17,6 +17,18 @@
    </com.yandex.mapkit.mapview.MapView>
 
    <ImageButton
+       android:id="@+id/ok_button"
+       android:layout_width="100dp"
+       android:layout_height="60dp"
+       android:background="@null"
+       android:scaleType="fitEnd"
+       android:layout_alignParentBottom="true"
+       android:layout_centerHorizontal="true"
+       android:layout_marginBottom="40dp"
+       android:src="@drawable/ok_button"
+       />
+
+   <ImageButton
        android:id="@+id/removePath_button"
        android:layout_width="60dp"
        android:layout_height="60dp"
@@ -26,7 +38,6 @@
        android:scaleType="fitEnd"
        android:layout_alignParentBottom="true"
        android:src="@drawable/deleteway" />
-
    <ImageButton
        android:id="@+id/pointer"
        android:layout_width="60dp"

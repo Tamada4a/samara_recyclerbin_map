@@ -93,6 +93,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     private List<PolylineMapObject> currentPath = new ArrayList<>();
 
+    private ImageButton ok_button;
     private ImageButton papers_menu_button;
     private ImageButton glass_menu_button;
     private ImageButton plastic_menu_button;
@@ -152,7 +153,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         removePath_button.setVisibility(View.GONE); //кнопку "удалить маршрут" сначала не видно
         menu_button = findViewById(R.id.menu_button);
         sideMenu = findViewById(R.id.nav_view);
-
+        ok_button = findViewById(R.id.ok_button);
+        ok_button.setVisibility(View.GONE);//изначально кнопку OK не видно
         sideMenuHeader = sideMenu.getHeaderView(0);
         drawerLayout = findViewById(R.id.drawerLayout);
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -385,6 +387,16 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchTypes();
             }
         });
+
+        ok_button.setOnClickListener(new View.OnClickListener() { //когда кликаем на ок строится маршрут
+            @Override
+            public void onClick(View view){
+                isCustomPoint = false;
+                destination.setDraggable(false);
+                ok_button.setVisibility(View.GONE);//убираем кнопку
+                showCreateRouteOptions(destination.getGeometry());//строим маршрут по точке
+            }
+        });
     }
 
 
@@ -463,8 +475,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     destination.setGeometry(point);
                     destination.setVisible(true);
                 }
-                isCustomPoint = false;
-                showCreateRouteOptions(point);
+                destination.setDraggable(true);//делаем маркер двигаемым
+                ok_button.setVisibility(View.VISIBLE);//показываем кнопку ОК для подтверждения точки
             }
         }
 
