@@ -11,6 +11,8 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -20,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -42,6 +45,8 @@ import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CompositeIcon;
 import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.InputListener;
+import com.yandex.mapkit.map.Map;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
@@ -83,7 +88,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private MapObjectCollection mapObjects;
     private Point clickedPoint;
     private PlacemarkMapObject destination;
-    private Bitmap bitmapDest;
 
     private UserLocationLayer userLocationLayer;
 
@@ -112,6 +116,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private View sideMenuHeader;
 
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+    private boolean isCustomPoint = false;
+    private boolean isCreatingWithCustomPoint = false;
 
     private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     "Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
@@ -129,6 +135,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 new CameraPosition(START_POINT, 13.0f, 0.0f, 0.0f),
                 new Animation(Animation.Type.SMOOTH, 3),
                 null);
+
+        mapview.getMap().addInputListener(mapTapListener);
 
         requestLocationPermission();
 
@@ -162,6 +170,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         tetra_menu_button = sideMenuHeader.findViewById(R.id.tetra_menu_button);
         lid_menu_button = sideMenuHeader.findViewById(R.id.lid_menu_button);
         tires_menu_button = sideMenuHeader.findViewById(R.id.tires_menu_button);
+
+        initMarkers();
 
         pointer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -375,12 +385,10 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchTypes();
             }
         });
-        bitmapDest = drawDestination();
-        initMarkers();
     }
 
 
-    protected void searchTypes(){
+    private void searchTypes(){
         for (int i = 0; i < listPoints.size(); i++){
             listMarkers.get(i).setVisible(true);
         }
@@ -410,7 +418,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         mapview.onStart();
     }
 
-    //проверка нужных разрешений на геолокацию
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 "android.permission.ACCESS_FINE_LOCATION")
@@ -444,15 +451,26 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
     };
 
-    private MapObjectTapListener destinationTapListener = new MapObjectTapListener() {
+    private InputListener mapTapListener = new InputListener() {
         @Override
-        public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
-            if(mapObject instanceof PlacemarkMapObject){
-                destination.setDraggable(false);
-                showCreateRouteOptions(point);
+        public void onMapTap(@NonNull Map map, @NonNull Point point) {
+            if(isCustomPoint){
+                if (destination == null) {
+                    Bitmap bitmapDest = drawDestinationMarker();
+                    destination = mapObjects.addPlacemark(point, ImageProvider.fromBitmap(bitmapDest));
+                } else {
+                    destination.setGeometry(point);
 
+                    destination.setVisible(true);
+                }
+                isCustomPoint = false;
+                showCreateRouteOptions(point);
             }
-            return true;
+        }
+
+        @Override
+        public void onMapLongTap(@NonNull Map map, @NonNull Point point) {
+
         }
     };
 
@@ -463,23 +481,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //if будет лишний и в showCreateRouteOptions не будет параметров
-                        if(userLocationLayer.cameraPosition() != null) {
-                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
+                            showHowToStart();
                             dialogInterface.cancel();
-                        }else{
-                            Toast.makeText(Main.this, "Откуда Вы начнёте путь?", Toast.LENGTH_SHORT).show();
-                            if (destination == null) {
-                                destination = mapObjects.addPlacemark(mapview.getMap().getCameraPosition().getTarget(), ImageProvider.fromBitmap(bitmapDest));
-                                destination.addTapListener(destinationTapListener);
-                            } else {
-                                destination.setGeometry(mapview.getMap().getCameraPosition().getTarget());
-
-                                destination.setVisible(true);
-                            }
-                            destination.setDraggable(true);
-                            destination.setText("Я");
-                        }
                     }
                 })
                 .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
@@ -491,10 +494,32 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         dialog.show();
     }
 
-    //отсюда вызывать надо будет то, что ты сделаешь с кастомным местоположением
-    //и тот if перенести будет сюда: если геолокация офнута, то твое
-    //и startPoint определяется через твой метод, если включена, то
-    //startPoint = userLocationLayer.cameraPosition().getTarget()
+    private void showHowToStart(){
+        AlertDialog.Builder startOption = new AlertDialog.Builder(Main.this)
+                .setTitle("Откуда вы хотите проложить маршрут?")
+                .setPositiveButton("Точка на карте", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        deleteCurrentPath();
+                        Toast.makeText(Main.this, "Выберите точку на карте", Toast.LENGTH_SHORT).show();
+                        isCustomPoint = true;
+                        isCreatingWithCustomPoint = true;
+                    }
+                })
+                .setNegativeButton("Моя геолокация", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(userLocationLayer.cameraPosition() != null) {
+                            isCreatingWithCustomPoint = false;
+                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
+                        }else{
+                            Toast.makeText(Main.this, "Необходимо включить геолокацию!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+        startOption.show();
+    }
+
     private void showCreateRouteOptions(Point startPoint) {
         AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
                 .setTitle("Как вы хотите добраться?")
@@ -519,15 +544,18 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         routerOptions.show();
     }
 
-    private Bitmap drawDestination(){
-        int picSize = 80;
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
+    private Bitmap drawDestinationMarker(){
+        Drawable drawable = ContextCompat.getDrawable(this, R.drawable.custom_point);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
-        Paint paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.theme));
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
         return bitmap;
     }
     private Bitmap drawMarker(@NonNull String[] chosenTypes){
@@ -612,11 +640,12 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             for (PolylineMapObject poly : currentPath)
                 mapObjects.remove(poly);
             currentPath = new ArrayList<>();
-            if (destination != null) destination.setVisible(false);
         }else{
             Toast.makeText(this, "Вы не проложили путь!", Toast.LENGTH_SHORT).show();
-            if (destination != null) destination.setVisible(false);
         }
+        if (destination != null) destination.setVisible(false);
+        isCustomPoint = false;
+        isCreatingWithCustomPoint = false;
     }
     
     private void createDrivingRoute(Point start) {
@@ -646,12 +675,18 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             for (PolylineMapObject poly : currentPath)
                 mapObjects.remove(poly);
             currentPath = new ArrayList<>();
+
+            if(!isCreatingWithCustomPoint) {
+                if (destination != null) destination.setVisible(false);
+                isCustomPoint = false;
+            }
         }
 
         PolylineMapObject polylineMapObject = mapObjects.addPolyline(geometry);
         polylineMapObject.setStrokeColor(R.color.purple_200);
 
         currentPath.add(polylineMapObject);
+        isCreatingWithCustomPoint = false;
     }
 
     @Override
@@ -683,12 +718,16 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 mapObjects.remove(poly);
             }
             currentPath = new ArrayList<>();
+
+            if(!isCreatingWithCustomPoint) {
+                if (destination != null) destination.setVisible(false);
+                isCustomPoint = false;
+            }
         }
         if(list.size() > 0) {
-            for (DrivingRoute route : list) {
-                PolylineMapObject polylineMapObject = mapObjects.addPolyline(route.getGeometry());
-                currentPath.add(polylineMapObject);
-            }
+            PolylineMapObject polylineMapObject = mapObjects.addPolyline(list.get(0).getGeometry());
+            currentPath.add(polylineMapObject);
+            isCreatingWithCustomPoint = false;
         }
         else {
             Toast.makeText(this, "Невозможно добраться на машине", Toast.LENGTH_SHORT).show();
@@ -738,14 +777,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-        if (userLocationLayer.cameraPosition() != null && currentPath.size() > 0) {
-            Point userPoint = userLocationLayer.cameraPosition().getTarget();
-            if (typeOfRoute.equals("drive")) {
-                createDrivingRoute(userPoint);
-            }else if(typeOfRoute.equals("pedestrian")){
-                createPedestrianRoute(userPoint);
-            }
-        }
+
     }
 
     private void initMarkers(){
