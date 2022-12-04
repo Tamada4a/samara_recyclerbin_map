@@ -138,14 +138,16 @@
         android:background="@drawable/tires"
         android:scaleType="fitCenter"
         tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+
     <ImageButton
         android:id="@+id/delete_customPoints"
         android:layout_width="176dp"
         android:layout_height="66dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="50dp"
         android:background="@drawable/delete_custom_points"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal = "true"
-        android:layout_marginBottom="20dp"
         />
 
 </com.nex3z.flowlayout.FlowLayout>
