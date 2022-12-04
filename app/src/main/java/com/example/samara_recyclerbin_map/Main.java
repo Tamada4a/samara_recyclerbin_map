@@ -14,7 +14,12 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -84,41 +89,61 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     private ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
     private ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
+    private ArrayList<PlacemarkMapObject> listCustomMarkers = new ArrayList<PlacemarkMapObject>();
+    private ArrayList<RecyclingPoint> listCustomPoints = new ArrayList<RecyclingPoint>();
+
     private MapView mapview;
     private MapObjectCollection mapObjects;
     private Point clickedPoint;
     private PlacemarkMapObject destination;
+    private PlacemarkMapObject customMarker;
 
     private UserLocationLayer userLocationLayer;
 
     private List<PolylineMapObject> currentPath = new ArrayList<>();
 
     private ImageButton ok_button;
+    private ImageButton cancel_button;
     private ImageButton papers_menu_button;
+    private ImageButton papers_create_button;
     private ImageButton glass_menu_button;
+    private ImageButton glass_create_button;
     private ImageButton plastic_menu_button;
+    private ImageButton plastic_create_button;
     private ImageButton metal_menu_button;
+    private ImageButton metal_create_button;
     private ImageButton cloths_menu_button;
+    private ImageButton cloths_create_button;
     private ImageButton other_menu_button;
+    private ImageButton other_create_button;
     private ImageButton dangerous_menu_button;
+    private ImageButton dangerous_create_button;
     private ImageButton batteries_menu_button;
+    private ImageButton batteries_create_button;
     private ImageButton lamp_menu_button;
+    private ImageButton lamp_create_button;
     private ImageButton appliances_menu_button;
+    private ImageButton appliances_create_button;
     private ImageButton tetra_menu_button;
+    private ImageButton tetra_create_button;
     private ImageButton lid_menu_button;
+    private ImageButton lid_create_button;
     private ImageButton tires_menu_button;
+    private ImageButton tires_create_button;
     private ImageButton pointer;
     private ImageButton removePath_button;
     private ImageButton menu_button;
+    private ImageButton addCustomPoint_button;
 
     private DrawerLayout drawerLayout;
     private NavigationView sideMenu;
     private View sideMenuHeader;
-
+    private View createPointView;
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+    private boolean[] checked2 = {false, false, false, false, false, false, false, false, false, false, false, false, false};
     private boolean isCustomPoint = false; //нужна для проверки в tapListener'e карты
     private boolean isCreatingWithCustomPoint = false; //по ней удаляю маршрут, есл построен через кастомный маркер
-
+    private boolean isCreatingRecyclePonit = false;
     private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
     "Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
@@ -128,6 +153,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         MapKitFactory.initialize(this);
 
         setContentView(R.layout.activity_main);
+        createPointView = LayoutInflater.from(Main.this).inflate(R.layout.create_point, null);;
         super.onCreate(savedInstanceState);
         mapview = (MapView)findViewById(R.id.mapview);
         mapview.getMap().setRotateGesturesEnabled(true);
@@ -153,11 +179,28 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         removePath_button.setVisibility(View.GONE); //кнопку "удалить маршрут" сначала не видно
         menu_button = findViewById(R.id.menu_button);
         sideMenu = findViewById(R.id.nav_view);
+        addCustomPoint_button = findViewById(R.id.addPoint_button);
+        cancel_button = findViewById(R.id.cancelCreatePoint_button);
+        cancel_button.setVisibility(View.GONE);
         ok_button = findViewById(R.id.ok_button);
         ok_button.setVisibility(View.GONE);//изначально кнопку OK не видно
         sideMenuHeader = sideMenu.getHeaderView(0);
         drawerLayout = findViewById(R.id.drawerLayout);
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+        papers_create_button = createPointView.findViewById(R.id.papers_menu_button);
+        glass_create_button = createPointView.findViewById(R.id.glass_menu_button);
+        plastic_create_button = createPointView.findViewById(R.id.plastic_menu_button);
+        metal_create_button = createPointView.findViewById(R.id.metal_menu_button);
+        cloths_create_button = createPointView.findViewById(R.id.cloths_menu_button);
+        other_create_button = createPointView.findViewById(R.id.other_menu_button);
+        dangerous_create_button = createPointView.findViewById(R.id.dangerous_menu_button);
+        batteries_create_button = createPointView.findViewById(R.id.batteries_menu_button);
+        lamp_create_button = createPointView.findViewById(R.id.lamp_menu_button);
+        appliances_create_button = createPointView.findViewById(R.id.appliances_menu_button);
+        tetra_create_button = createPointView.findViewById(R.id.tetra_menu_button);
+        lid_create_button = createPointView.findViewById(R.id.lid_menu_button);
+        tires_create_button = createPointView.findViewById(R.id.tires_menu_button);
 
         papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
         glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
@@ -195,6 +238,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             public void onClick(View view) {
                 deleteCurrentPath();
                 removePath_button.setVisibility(View.GONE); //когда удаляем маршрут кнопка пропадает
+                addCustomPoint_button.setVisibility(View.VISIBLE);
             }
         });
 
@@ -220,6 +264,22 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        papers_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[0]){
+                    checked2[0] = true;
+                    papers_create_button.setBackgroundResource(R.drawable.papers_selected);
+
+                }else if(checked2[0]){
+                    checked2[0] = false;
+                    papers_create_button.setBackgroundResource(R.drawable.papers);
+                }
+                searchTypes();
+            }
+        });
+
+
         glass_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -229,6 +289,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[1]){
                     checked[1] = false;
                     glass_menu_button.setBackgroundResource(R.drawable.glass);
+                }
+                searchTypes();
+            }
+        });
+
+        glass_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[1]){
+                    checked2[1] = true;
+                    glass_create_button.setBackgroundResource(R.drawable.glass_selected);
+                }else if(checked2[1]){
+                    checked2[1] = false;
+                    glass_create_button.setBackgroundResource(R.drawable.glass);
                 }
                 searchTypes();
             }
@@ -248,6 +322,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        plastic_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[2]){
+                    checked2[2] = true;
+                    plastic_create_button.setBackgroundResource(R.drawable.plastic_selected);
+                }else if(checked2[2]){
+                    checked2[2] = false;
+                    plastic_create_button.setBackgroundResource(R.drawable.plastic);
+                }
+                searchTypes();
+            }
+        });
+
         metal_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -257,6 +345,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[3]){
                     checked[3] = false;
                     metal_menu_button.setBackgroundResource(R.drawable.metal);
+                }
+                searchTypes();
+            }
+        });
+
+        metal_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[3]){
+                    checked2[3] = true;
+                    metal_create_button.setBackgroundResource(R.drawable.metal_selected);
+                }else if(checked2[3]){
+                    checked2[3] = false;
+                    metal_create_button.setBackgroundResource(R.drawable.metal);
                 }
                 searchTypes();
             }
@@ -276,6 +378,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        cloths_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[4]){
+                    checked2[4] = true;
+                    cloths_create_button.setBackgroundResource(R.drawable.cloths_selected);
+                }else if(checked2[4]){
+                    checked2[4] = false;
+                    cloths_create_button.setBackgroundResource(R.drawable.cloths);
+                }
+                searchTypes();
+            }
+        });
+
         other_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -285,6 +401,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[5]){
                     checked[5] = false;
                     other_menu_button.setBackgroundResource(R.drawable.other);
+                }
+                searchTypes();
+            }
+        });
+
+        other_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[5]){
+                    checked2[5] = true;
+                    other_create_button.setBackgroundResource(R.drawable.other_selected);
+                }else if(checked2[5]){
+                    checked2[5] = false;
+                    other_create_button.setBackgroundResource(R.drawable.other);
                 }
                 searchTypes();
             }
@@ -304,6 +434,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        dangerous_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[6]){
+                    checked2[6] = true;
+                    dangerous_create_button.setBackgroundResource(R.drawable.dangerous_selected);
+                }else if(checked2[6]){
+                    checked2[6] = false;
+                    dangerous_create_button.setBackgroundResource(R.drawable.dangerous);
+                }
+                searchTypes();
+            }
+        });
+
         batteries_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -313,6 +457,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[7]){
                     checked[7] = false;
                     batteries_menu_button.setBackgroundResource(R.drawable.batteries);
+                }
+                searchTypes();
+            }
+        });
+
+        batteries_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[7]){
+                    checked2[7] = true;
+                    batteries_create_button.setBackgroundResource(R.drawable.batteries_selected);
+                }else if(checked2[7]){
+                    checked2[7] = false;
+                    batteries_create_button.setBackgroundResource(R.drawable.batteries);
                 }
                 searchTypes();
             }
@@ -332,6 +490,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        lamp_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[8]){
+                    checked2[8] = true;
+                    lamp_create_button.setBackgroundResource(R.drawable.lamp_selected);
+                }else if(checked2[8]){
+                    checked2[8] = false;
+                    lamp_create_button.setBackgroundResource(R.drawable.lamp);
+                }
+                searchTypes();
+            }
+        });
+
         appliances_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -341,6 +513,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[9]){
                     checked[9] = false;
                     appliances_menu_button.setBackgroundResource(R.drawable.appliances);
+                }
+                searchTypes();
+            }
+        });
+
+        appliances_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[9]){
+                    checked2[9] = true;
+                    appliances_create_button.setBackgroundResource(R.drawable.appliances_selected);
+                }else if(checked2[9]){
+                    checked2[9] = false;
+                    appliances_create_button.setBackgroundResource(R.drawable.appliances);
                 }
                 searchTypes();
             }
@@ -360,6 +546,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        tetra_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[10]){
+                    checked2[10] = true;
+                    tetra_create_button.setBackgroundResource(R.drawable.tetra_selected);
+                }else if(checked2[10]){
+                    checked2[10] = false;
+                    tetra_create_button.setBackgroundResource(R.drawable.tetra);
+                }
+                searchTypes();
+            }
+        });
+
         lid_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -369,6 +569,20 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }else if(checked[11]){
                     checked[11] = false;
                     lid_menu_button.setBackgroundResource(R.drawable.lid);
+                }
+                searchTypes();
+            }
+        });
+
+        lid_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[11]){
+                    checked2[11] = true;
+                    lid_create_button.setBackgroundResource(R.drawable.lid_selected);
+                }else if(checked2[11]){
+                    checked2[11] = false;
+                    lid_create_button.setBackgroundResource(R.drawable.lid);
                 }
                 searchTypes();
             }
@@ -388,13 +602,84 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
+        tires_create_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!checked2[12]){
+                    checked2[12] = true;
+                    tires_create_button.setBackgroundResource(R.drawable.tires_selected);
+                }else if(checked2[12]){
+                    checked2[12] = false;
+                    tires_create_button.setBackgroundResource(R.drawable.tires);
+                }
+                searchTypes();
+            }
+        });
+
         ok_button.setOnClickListener(new View.OnClickListener() { //когда кликаем на ок строится маршрут
             @Override
             public void onClick(View view){
-                isCustomPoint = false;
-                destination.setDraggable(false);
-                ok_button.setVisibility(View.GONE);//убираем кнопку
-                showCreateRouteOptions(destination.getGeometry());//строим маршрут по точке
+                if(!isCreatingRecyclePonit) {
+                    isCustomPoint = false;
+                    destination.setDraggable(false);
+                    ok_button.setVisibility(View.GONE);//убираем кнопку
+                    showCreateRouteOptions(destination.getGeometry());//строим маршрут по точке
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Main.this, R.style.AlertDialogCustom);
+                    builder.setTitle("Новый пункт");
+
+                    final EditText name = (EditText) createPointView.findViewById(R.id.input_name);
+                    final EditText info = (EditText) createPointView.findViewById(R.id.input_name);
+                    final EditText location = (EditText) createPointView.findViewById(R.id.input_name);
+                    builder.setView(createPointView);
+
+                    builder.setPositiveButton("Создать", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            /*//String[] appliance = {"Appliance"}; // техника
+                            //Bitmap bitmapAppliance = drawMarker(appliance);
+                            PlacemarkMapObject newMarker = mapObjects.addPlacemark(destination.getGeometry(), ImageProvider.fromBitmap(bitmapAppliance));
+                            listCustomMarkers.add(newMarker);
+                            RecyclingPoint newPoint = new RecyclingPoint(destination.getGeometry(), location.toString(), name.toString(), info.toString(), appliance);
+                            newMarker.setUserData(newPoint);
+                            listCustomPoints.add(newPoint);
+                            newMarker.addTapListener();
+                            dialog.cancel();*/
+                        }
+                    });
+                    builder.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+                }
+            }
+        });
+
+        addCustomPoint_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                isCreatingRecyclePonit = true;
+                addCustomPoint_button.setVisibility(View.GONE);
+                cancel_button.setVisibility(View.VISIBLE);
+                Toast.makeText(Main.this, "Выберите точку на карте, где хотите добавить пункт переработки мусора", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cancel_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                isCreatingRecyclePonit = false;
+                cancel_button.setVisibility(View.GONE);
+                if (customMarker != null && customMarker.isVisible())
+                    customMarker.setVisible(false);
+                addCustomPoint_button.setVisibility(View.VISIBLE);
+                ok_button.setVisibility(View.GONE);
             }
         });
     }
@@ -481,6 +766,17 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }
                 destination.setDraggable(true);//делаем маркер двигаемым
                 ok_button.setVisibility(View.VISIBLE);//показываем кнопку ОК для подтверждения точки
+            }
+            if(isCreatingRecyclePonit){
+                if (customMarker == null) {
+                    Bitmap bitmapDest = drawDestinationMarker();
+                    customMarker = mapObjects.addPlacemark(point, ImageProvider.fromBitmap(bitmapDest));
+                } else {
+                    customMarker.setGeometry(point);
+                    customMarker.setVisible(true);
+                }
+                customMarker.setDraggable(true);
+                ok_button.setVisibility(View.VISIBLE);
             }
         }
 
@@ -686,6 +982,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
         drivingSession = drivingRouter.requestRoutes(points, new DrivingOptions(), new VehicleOptions(), this);
+        addCustomPoint_button.setVisibility(View.GONE);
         removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 
@@ -697,6 +994,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
         pedestrianRouter.requestRoutes(points, new TimeOptions(), this);
+        addCustomPoint_button.setVisibility(View.GONE);
         removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 

@@ -38,6 +38,29 @@
        android:scaleType="fitEnd"
        android:layout_alignParentBottom="true"
        android:src="@drawable/deleteway" />
+
+      <ImageButton
+          android:id="@+id/addPoint_button"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:layout_marginStart="30dp"
+          android:layout_marginBottom="40dp"
+          android:background="@null"
+          android:scaleType="fitEnd"
+          android:layout_alignParentBottom="true"
+          android:src="@drawable/add_point_button" />
+
+      <ImageButton
+          android:id = "@+id/cancelCreatePoint_button"
+          android:layout_width="60dp"
+          android:layout_height="60dp"
+          android:layout_marginStart="30dp"
+          android:layout_marginBottom="40dp"
+          android:background="@null"
+          android:scaleType="fitEnd"
+          android:layout_alignParentBottom="true"
+          android:src="@drawable/cancel_button" />
+
    <ImageButton
        android:id="@+id/pointer"
        android:layout_width="60dp"
