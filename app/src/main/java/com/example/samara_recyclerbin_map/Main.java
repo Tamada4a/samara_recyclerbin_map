@@ -451,6 +451,10 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         @Override
         public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
             if(mapObject instanceof PlacemarkMapObject){
+                if(isCustomPoint){
+                    isCustomPoint = false;
+                    isCreatingWithCustomPoint = false;
+                }
                 Object userData = mapObject.getUserData();
 
                 if(userData instanceof RecyclingPoint){
