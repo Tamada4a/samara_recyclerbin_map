@@ -765,7 +765,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 if(userData instanceof RecyclingPoint){
                     RecyclingPoint data = (RecyclingPoint) userData;
                     clickedPoint = data.getPoint();
-                    showPointInfo(data);
+                    showPointInfo(mapObject, data);
                 }
             }
             return true;
@@ -815,7 +815,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
     };
 
-    private void showPointInfo(RecyclingPoint data){
+    private void showPointInfo(MapObject mapObject, RecyclingPoint data){
         AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
                 .setTitle(data.getLocationName())
                 .setMessage(data.getInfo() + "\n" + data.getLocation())
@@ -825,6 +825,33 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                             showHowToStart();
                             dialogInterface.cancel();
                     }
+                })
+                .setNeutralButton("Удалить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
+                                .setTitle("Удалить пункт")
+                                .setMessage("Вы уверены, что хотите удалить маршрут?")
+                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        //mapObjects.remove(mapObject);
+                                        //удаление
+                                        dialogInterface.cancel();
+
+                                    }
+                                })
+                                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+                        dialog.show();
+                        dialogInterface.cancel();
+                    }
+
                 })
                 .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
                     @Override
