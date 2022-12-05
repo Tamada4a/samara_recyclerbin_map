@@ -700,28 +700,36 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     builder.setPositiveButton("Создать", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
-                            ArrayList<String> temp = new ArrayList<String>();
-                            for (int i = 0; i < checked2.length; i++) {
-                                if (checked2[i]) temp.add(types[i]);
+                            boolean exceptionNoTypes = true;
+                            for (int i = 0; i < checked2.length; i ++){
+                                if (checked2[i]) exceptionNoTypes = false;
                             }
-                            String[] newTypes = new String[temp.size()];
-                            temp.toArray(newTypes);
-                            Bitmap newBitmap = MarkerDrawer.drawRingChartMarker(newTypes);
-                            PlacemarkMapObject newMarker = mapObjects.addPlacemark(customMarker.getGeometry(), ImageProvider.fromBitmap(newBitmap));
-                            listCustomMarkers.add(newMarker);
-                            RecyclingPoint newPoint = new RecyclingPoint(customMarker.getGeometry(), location.getText().toString(), name.getText().toString(), info.getText().toString(), newTypes);
-                            newMarker.setUserData(newPoint);
-                            listCustomPoints.add(newPoint);
-                            customMarker.setVisible(false);
-                            ok_button.setVisibility(View.GONE);
-                            cancel_button.setVisibility(View.GONE);
-                            addCustomPoint_button.setVisibility(View.VISIBLE);
-                            isCreatingRecyclePonit = false;
-                            newMarker.addTapListener(placeMarkTapListener);
-                            for (int i = 0; i < checked2.length; i++)
-                                checked2[i] = false;
-                            dialog.cancel();
+                            if (exceptionNoTypes){
+                                Toast.makeText(Main.this, "Вы не выбрали тип", Toast.LENGTH_SHORT).show();
+
+                            } else {
+                                ArrayList<String> temp = new ArrayList<String>();
+                                for (int i = 0; i < checked2.length; i++) {
+                                    if (checked2[i]) temp.add(types[i]);
+                                }
+                                String[] newTypes = new String[temp.size()];
+                                temp.toArray(newTypes);
+                                Bitmap newBitmap = MarkerDrawer.drawRingChartMarker(newTypes);
+                                PlacemarkMapObject newMarker = mapObjects.addPlacemark(customMarker.getGeometry(), ImageProvider.fromBitmap(newBitmap));
+                                listCustomMarkers.add(newMarker);
+                                RecyclingPoint newPoint = new RecyclingPoint(customMarker.getGeometry(), location.getText().toString(), name.getText().toString(), info.getText().toString(), newTypes);
+                                newMarker.setUserData(newPoint);
+                                listCustomPoints.add(newPoint);
+                                customMarker.setVisible(false);
+                                ok_button.setVisibility(View.GONE);
+                                cancel_button.setVisibility(View.GONE);
+                                addCustomPoint_button.setVisibility(View.VISIBLE);
+                                isCreatingRecyclePonit = false;
+                                newMarker.addTapListener(placeMarkTapListener);
+                                for (int i = 0; i < checked2.length; i++)
+                                    checked2[i] = false;
+                                dialog.cancel();
+                            }
                         }
                     });
                     builder.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
