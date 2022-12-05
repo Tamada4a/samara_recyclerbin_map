@@ -143,6 +143,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private ImageButton removePath_button;
     private ImageButton menu_button;
     private ImageButton addCustomPoint_button;
+    private ImageButton reset_button;
 
     private DrawerLayout drawerLayout;
     private NavigationView sideMenu;
@@ -229,6 +230,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         tetra_menu_button = sideMenuHeader.findViewById(R.id.tetra_menu_button);
         lid_menu_button = sideMenuHeader.findViewById(R.id.lid_menu_button);
         tires_menu_button = sideMenuHeader.findViewById(R.id.tires_menu_button);
+        reset_button = sideMenuHeader.findViewById(R.id.reset_button);
+        reset_button.setVisibility(View.GONE);
 
         pointer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,6 +254,36 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 deleteCurrentPath();
                 removePath_button.setVisibility(View.GONE); //когда удаляем маршрут кнопка пропадает
                 addCustomPoint_button.setVisibility(View.VISIBLE);
+            }
+        });
+
+        reset_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
+                        .setTitle("Сброс до базовых настроек")
+                        .setMessage("Вы уверены, что хотите удалить все созданные пользовательские пункты и вернуться к базовым настройкам?")
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(listCustomMarkers.size() > 0) listCustomMarkers.clear();
+                                if(listCustomPoints.size() > 0)listCustomPoints.clear();
+                                if (MarkerDrawer.listPoints.size() > 0) MarkerDrawer.listPoints.clear();
+                                if (MarkerDrawer.listMarkers.size() > 0) MarkerDrawer.listMarkers.clear();
+                                mapObjects.clear();
+                                mapObjects = markerDrawer.drawDefaultMarkers();
+                                reset_button.setVisibility(View.GONE);
+                                dialogInterface.cancel();
+
+                            }
+                        })
+                        .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+                            }
+                        });
+                dialog.show();
             }
         });
 
@@ -724,6 +757,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                                 ok_button.setVisibility(View.GONE);
                                 cancel_button.setVisibility(View.GONE);
                                 addCustomPoint_button.setVisibility(View.VISIBLE);
+                                reset_button.setVisibility(View.VISIBLE);
                                 isCreatingRecyclePonit = false;
                                 newMarker.addTapListener(placeMarkTapListener);
                                 for (int i = 0; i < checked2.length; i++)
@@ -743,6 +777,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 }
             }
         });
+
+
 
         addCustomPoint_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -887,6 +923,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                                         if (listCustomMarkers.contains(mapObject)) listCustomMarkers.remove(mapObject);
                                         if (listCustomPoints.contains(data)) listCustomPoints.remove(data);
                                         mapObjects.remove(mapObject);
+                                        reset_button.setVisibility(View.VISIBLE);
                                         //удаление
                                         dialogInterface.cancel();
 

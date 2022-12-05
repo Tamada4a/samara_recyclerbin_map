@@ -140,7 +140,7 @@
         tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
 
     <ImageButton
-        android:id="@+id/delete_customPoints"
+        android:id="@+id/reset_button"
         android:layout_width="176dp"
         android:layout_height="66dp"
         android:layout_marginTop="40dp"
