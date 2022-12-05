@@ -147,7 +147,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private DrawerLayout drawerLayout;
     private NavigationView sideMenu;
     private View sideMenuHeader;
-    private View createPointView;
+    //private View createPointView;
 
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
     private boolean[] checked2 = {false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -161,7 +161,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         MapKitFactory.initialize(this);
 
         setContentView(R.layout.activity_main);
-        createPointView = LayoutInflater.from(Main.this).inflate(R.layout.create_point, null);;
+        //createPointView = LayoutInflater.from(Main.this).inflate(R.layout.create_point, null);
         super.onCreate(savedInstanceState);
         mapview = (MapView)findViewById(R.id.mapview);
         mapview.getMap().setRotateGesturesEnabled(true);
@@ -202,7 +202,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         drawerLayout = findViewById(R.id.drawerLayout);
         //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
-        papers_create_button = createPointView.findViewById(R.id.papers_menu_button);
+        /*papers_create_button = createPointView.findViewById(R.id.papers_menu_button);
         glass_create_button = createPointView.findViewById(R.id.glass_menu_button);
         plastic_create_button = createPointView.findViewById(R.id.plastic_menu_button);
         metal_create_button = createPointView.findViewById(R.id.metal_menu_button);
@@ -214,7 +214,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         appliances_create_button = createPointView.findViewById(R.id.appliances_menu_button);
         tetra_create_button = createPointView.findViewById(R.id.tetra_menu_button);
         lid_create_button = createPointView.findViewById(R.id.lid_menu_button);
-        tires_create_button = createPointView.findViewById(R.id.tires_menu_button);
+        tires_create_button = createPointView.findViewById(R.id.tires_menu_button);*/
 
         papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
         glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
@@ -277,21 +277,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        papers_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[0]){
-                    checked2[0] = true;
-                    papers_create_button.setBackgroundResource(R.drawable.papers_selected);
-
-                }else if(checked2[0]){
-                    checked2[0] = false;
-                    papers_create_button.setBackgroundResource(R.drawable.papers);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
-
 
         glass_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -308,19 +293,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        glass_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[1]){
-                    checked2[1] = true;
-                    glass_create_button.setBackgroundResource(R.drawable.glass_selected);
-                }else if(checked2[1]){
-                    checked2[1] = false;
-                    glass_create_button.setBackgroundResource(R.drawable.glass);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
 
         plastic_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -337,19 +309,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        plastic_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[2]){
-                    checked2[2] = true;
-                    plastic_create_button.setBackgroundResource(R.drawable.plastic_selected);
-                }else if(checked2[2]){
-                    checked2[2] = false;
-                    plastic_create_button.setBackgroundResource(R.drawable.plastic);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         metal_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -366,19 +326,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        metal_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[3]){
-                    checked2[3] = true;
-                    metal_create_button.setBackgroundResource(R.drawable.metal_selected);
-                }else if(checked2[3]){
-                    checked2[3] = false;
-                    metal_create_button.setBackgroundResource(R.drawable.metal);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         cloths_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -395,19 +343,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        cloths_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[4]){
-                    checked2[4] = true;
-                    cloths_create_button.setBackgroundResource(R.drawable.cloths_selected);
-                }else if(checked2[4]){
-                    checked2[4] = false;
-                    cloths_create_button.setBackgroundResource(R.drawable.cloths);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         other_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -424,19 +360,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        other_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[5]){
-                    checked2[5] = true;
-                    other_create_button.setBackgroundResource(R.drawable.other_selected);
-                }else if(checked2[5]){
-                    checked2[5] = false;
-                    other_create_button.setBackgroundResource(R.drawable.other);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         dangerous_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -453,19 +377,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        dangerous_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[6]){
-                    checked2[6] = true;
-                    dangerous_create_button.setBackgroundResource(R.drawable.dangerous_selected);
-                }else if(checked2[6]){
-                    checked2[6] = false;
-                    dangerous_create_button.setBackgroundResource(R.drawable.dangerous);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         batteries_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -482,19 +394,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        batteries_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[7]){
-                    checked2[7] = true;
-                    batteries_create_button.setBackgroundResource(R.drawable.batteries_selected);
-                }else if(checked2[7]){
-                    checked2[7] = false;
-                    batteries_create_button.setBackgroundResource(R.drawable.batteries);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         lamp_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -511,20 +411,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        lamp_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[8]){
-                    checked2[8] = true;
-                    lamp_create_button.setBackgroundResource(R.drawable.lamp_selected);
-                }else if(checked2[8]){
-                    checked2[8] = false;
-                    lamp_create_button.setBackgroundResource(R.drawable.lamp);
-                }
-                //markerDrawer.searchTypes(checked2);
 
-            }
-        });
 
         appliances_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -541,19 +428,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        appliances_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[9]){
-                    checked2[9] = true;
-                    appliances_create_button.setBackgroundResource(R.drawable.appliances_selected);
-                }else if(checked2[9]){
-                    checked2[9] = false;
-                    appliances_create_button.setBackgroundResource(R.drawable.appliances);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         tetra_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -570,19 +445,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        tetra_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[10]){
-                    checked2[10] = true;
-                    tetra_create_button.setBackgroundResource(R.drawable.tetra_selected);
-                }else if(checked2[10]){
-                    checked2[10] = false;
-                    tetra_create_button.setBackgroundResource(R.drawable.tetra);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         lid_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -599,19 +462,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        lid_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[11]){
-                    checked2[11] = true;
-                    lid_create_button.setBackgroundResource(R.drawable.lid_selected);
-                }else if(checked2[11]){
-                    checked2[11] = false;
-                    lid_create_button.setBackgroundResource(R.drawable.lid);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         tires_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -628,19 +479,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             }
         });
 
-        tires_create_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!checked2[12]){
-                    checked2[12] = true;
-                    tires_create_button.setBackgroundResource(R.drawable.tires_selected);
-                }else if(checked2[12]){
-                    checked2[12] = false;
-                    tires_create_button.setBackgroundResource(R.drawable.tires);
-                }
-                //markerDrawer.searchTypes(checked2);
-            }
-        });
+
 
         ok_button.setOnClickListener(new View.OnClickListener() { //когда кликаем на ок строится маршрут
             @Override
@@ -654,9 +493,208 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     AlertDialog.Builder builder = new AlertDialog.Builder(Main.this, R.style.AlertDialogCustom);
                     builder.setTitle("Новый пункт");
 
+                    View createPointView = LayoutInflater.from(Main.this).inflate(R.layout.create_point, null);
                     final EditText name = (EditText) createPointView.findViewById(R.id.input_name);
                     final EditText info = (EditText) createPointView.findViewById(R.id.input_info);
                     final EditText location = (EditText) createPointView.findViewById(R.id.input_address);
+                    papers_create_button = createPointView.findViewById(R.id.papers_menu_button);
+                    glass_create_button = createPointView.findViewById(R.id.glass_menu_button);
+                    plastic_create_button = createPointView.findViewById(R.id.plastic_menu_button);
+                    metal_create_button = createPointView.findViewById(R.id.metal_menu_button);
+                    cloths_create_button = createPointView.findViewById(R.id.cloths_menu_button);
+                    other_create_button = createPointView.findViewById(R.id.other_menu_button);
+                    dangerous_create_button = createPointView.findViewById(R.id.dangerous_menu_button);
+                    batteries_create_button = createPointView.findViewById(R.id.batteries_menu_button);
+                    lamp_create_button = createPointView.findViewById(R.id.lamp_menu_button);
+                    appliances_create_button = createPointView.findViewById(R.id.appliances_menu_button);
+                    tetra_create_button = createPointView.findViewById(R.id.tetra_menu_button);
+                    lid_create_button = createPointView.findViewById(R.id.lid_menu_button);
+                    tires_create_button = createPointView.findViewById(R.id.tires_menu_button);
+
+                    papers_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[0]){
+                                checked2[0] = true;
+                                papers_create_button.setBackgroundResource(R.drawable.papers_selected);
+
+                            }else if(checked2[0]){
+                                checked2[0] = false;
+                                papers_create_button.setBackgroundResource(R.drawable.papers);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    glass_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[1]){
+                                checked2[1] = true;
+                                glass_create_button.setBackgroundResource(R.drawable.glass_selected);
+                            }else if(checked2[1]){
+                                checked2[1] = false;
+                                glass_create_button.setBackgroundResource(R.drawable.glass);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    plastic_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[2]){
+                                checked2[2] = true;
+                                plastic_create_button.setBackgroundResource(R.drawable.plastic_selected);
+                            }else if(checked2[2]){
+                                checked2[2] = false;
+                                plastic_create_button.setBackgroundResource(R.drawable.plastic);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    metal_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[3]){
+                                checked2[3] = true;
+                                metal_create_button.setBackgroundResource(R.drawable.metal_selected);
+                            }else if(checked2[3]){
+                                checked2[3] = false;
+                                metal_create_button.setBackgroundResource(R.drawable.metal);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    cloths_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[4]){
+                                checked2[4] = true;
+                                cloths_create_button.setBackgroundResource(R.drawable.cloths_selected);
+                            }else if(checked2[4]){
+                                checked2[4] = false;
+                                cloths_create_button.setBackgroundResource(R.drawable.cloths);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    other_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[5]){
+                                checked2[5] = true;
+                                other_create_button.setBackgroundResource(R.drawable.other_selected);
+                            }else if(checked2[5]){
+                                checked2[5] = false;
+                                other_create_button.setBackgroundResource(R.drawable.other);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    dangerous_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[6]){
+                                checked2[6] = true;
+                                dangerous_create_button.setBackgroundResource(R.drawable.dangerous_selected);
+                            }else if(checked2[6]){
+                                checked2[6] = false;
+                                dangerous_create_button.setBackgroundResource(R.drawable.dangerous);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    batteries_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[7]){
+                                checked2[7] = true;
+                                batteries_create_button.setBackgroundResource(R.drawable.batteries_selected);
+                            }else if(checked2[7]){
+                                checked2[7] = false;
+                                batteries_create_button.setBackgroundResource(R.drawable.batteries);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    lamp_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[8]){
+                                checked2[8] = true;
+                                lamp_create_button.setBackgroundResource(R.drawable.lamp_selected);
+                            }else if(checked2[8]){
+                                checked2[8] = false;
+                                lamp_create_button.setBackgroundResource(R.drawable.lamp);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+
+                        }
+                    });
+
+                    appliances_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[9]){
+                                checked2[9] = true;
+                                appliances_create_button.setBackgroundResource(R.drawable.appliances_selected);
+                            }else if(checked2[9]){
+                                checked2[9] = false;
+                                appliances_create_button.setBackgroundResource(R.drawable.appliances);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    tetra_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[10]){
+                                checked2[10] = true;
+                                tetra_create_button.setBackgroundResource(R.drawable.tetra_selected);
+                            }else if(checked2[10]){
+                                checked2[10] = false;
+                                tetra_create_button.setBackgroundResource(R.drawable.tetra);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    lid_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[11]){
+                                checked2[11] = true;
+                                lid_create_button.setBackgroundResource(R.drawable.lid_selected);
+                            }else if(checked2[11]){
+                                checked2[11] = false;
+                                lid_create_button.setBackgroundResource(R.drawable.lid);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
+                    tires_create_button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(!checked2[12]){
+                                checked2[12] = true;
+                                tires_create_button.setBackgroundResource(R.drawable.tires_selected);
+                            }else if(checked2[12]){
+                                checked2[12] = false;
+                                tires_create_button.setBackgroundResource(R.drawable.tires);
+                            }
+                            //markerDrawer.searchTypes(checked2);
+                        }
+                    });
+
                     builder.setView(createPointView);
 
                     builder.setPositiveButton("Создать", new DialogInterface.OnClickListener() {
