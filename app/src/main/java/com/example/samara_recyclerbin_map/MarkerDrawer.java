@@ -29,12 +29,12 @@ public class MarkerDrawer {
     private ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
     private ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
 
-    private Context context;
+    public static Context context;
 
     private MapObjectTapListener placeMarkTapListener;
     private MapObjectCollection mapObjects;
 
-    private final String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
+    public static String[] types = {"Paper", "Glass", "Plastic", "Metal", "Clothes", "Other", "Dangerous",
             "Batteries", "Lamp", "Appliances", "Tetra", "Lid", "Tires"};
 
     public MarkerDrawer(Context mainContext, MapObjectCollection mainMapObjects, MapObjectTapListener mainPlaceMarkTapListener){
@@ -532,7 +532,7 @@ public class MarkerDrawer {
     }
 
     //функция отрисовки кольцевой диаграммы (ring chart) - оно же обозначение того, какие мусорки в точке
-    private Bitmap drawRingChartMarker(@NonNull String[] chosenTypes){
+    public static Bitmap drawRingChartMarker(@NonNull String[] chosenTypes){
 
         int length = chosenTypes.length;
         int picSize = 80;

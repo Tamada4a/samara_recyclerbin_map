@@ -1,5 +1,7 @@
 package com.example.samara_recyclerbin_map;
 
+import static com.example.samara_recyclerbin_map.MarkerDrawer.types;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -271,6 +273,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     papers_menu_button.setBackgroundResource(R.drawable.papers);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -301,6 +304,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     glass_menu_button.setBackgroundResource(R.drawable.glass);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -329,6 +333,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     plastic_menu_button.setBackgroundResource(R.drawable.plastic);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -357,6 +362,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     metal_menu_button.setBackgroundResource(R.drawable.metal);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -385,6 +391,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     cloths_menu_button.setBackgroundResource(R.drawable.cloths);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -413,6 +420,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     other_menu_button.setBackgroundResource(R.drawable.other);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -441,6 +449,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     dangerous_menu_button.setBackgroundResource(R.drawable.dangerous);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -469,6 +478,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     batteries_menu_button.setBackgroundResource(R.drawable.batteries);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -497,6 +507,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     lamp_menu_button.setBackgroundResource(R.drawable.lamp);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -511,6 +522,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     lamp_create_button.setBackgroundResource(R.drawable.lamp);
                 }
                 //markerDrawer.searchTypes(checked2);
+
             }
         });
 
@@ -525,6 +537,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     appliances_menu_button.setBackgroundResource(R.drawable.appliances);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -553,6 +566,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     tetra_menu_button.setBackgroundResource(R.drawable.tetra);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -581,6 +595,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     lid_menu_button.setBackgroundResource(R.drawable.lid);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -609,6 +624,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     tires_menu_button.setBackgroundResource(R.drawable.tires);
                 }
                 markerDrawer.searchTypes(checked);
+                searchCustomTypes(checked);
             }
         });
 
@@ -639,24 +655,35 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     builder.setTitle("Новый пункт");
 
                     final EditText name = (EditText) createPointView.findViewById(R.id.input_name);
-                    final EditText info = (EditText) createPointView.findViewById(R.id.input_name);
-                    final EditText location = (EditText) createPointView.findViewById(R.id.input_name);
+                    final EditText info = (EditText) createPointView.findViewById(R.id.input_info);
+                    final EditText location = (EditText) createPointView.findViewById(R.id.input_address);
                     builder.setView(createPointView);
 
                     builder.setPositiveButton("Создать", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
-
-                            /*//String[] appliance = {"Appliance"}; // техника
-                            //Bitmap bitmapAppliance = drawMarker(appliance);
-                            PlacemarkMapObject newMarker = mapObjects.addPlacemark(destination.getGeometry(), ImageProvider.fromBitmap(bitmapAppliance));
+                            ArrayList<String> temp = new ArrayList<String>();
+                            for (int i = 0; i < checked2.length; i++) {
+                                if (checked2[i]) temp.add(types[i]);
+                            }
+                            String[] newTypes = new String[temp.size()];
+                            temp.toArray(newTypes);
+                            Bitmap newBitmap = MarkerDrawer.drawRingChartMarker(newTypes);
+                            PlacemarkMapObject newMarker = mapObjects.addPlacemark(customMarker.getGeometry(), ImageProvider.fromBitmap(newBitmap));
                             listCustomMarkers.add(newMarker);
-                            RecyclingPoint newPoint = new RecyclingPoint(destination.getGeometry(), location.toString(), name.toString(), info.toString(), appliance);
+                            RecyclingPoint newPoint = new RecyclingPoint(customMarker.getGeometry(), location.getText().toString(), name.getText().toString(), info.getText().toString(), newTypes);
                             newMarker.setUserData(newPoint);
                             listCustomPoints.add(newPoint);
-                            newMarker.addTapListener();
-                            dialog.cancel();*/
+                            customMarker.setVisible(false);
+                            ok_button.setVisibility(View.GONE);
+                            cancel_button.setVisibility(View.GONE);
+                            addCustomPoint_button.setVisibility(View.VISIBLE);
+                            isCreatingRecyclePonit = false;
+                            newMarker.addTapListener(placeMarkTapListener);
+                            for (int i = 0; i < checked2.length; i++)
+                                checked2[i] = false;
+                            dialog.cancel();
                         }
                     });
                     builder.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
@@ -984,6 +1011,22 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
 
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    public void searchCustomTypes(boolean[] checked){
+        for (int i = 0; i < listCustomPoints.size(); i++){
+            listCustomMarkers.get(i).setVisible(true);
+        }
+        ArrayList<String> temp = new ArrayList<String>();
+        for (int i = 0; i < checked.length; i++) {
+            if (checked[i]) temp.add(types[i]);
+        }
+        for (int i = 0; i < listCustomPoints.size(); i++){
+            String[] types = listCustomPoints.get(i).getTypes();
+            for (String type : temp){
+                if(!Arrays.asList(types).contains(type)) listCustomMarkers.get(i).setVisible(false);
+            }
+        }
     }
 
     @Override
