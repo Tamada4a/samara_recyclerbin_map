@@ -26,8 +26,8 @@ import java.util.Arrays;
 
 //в этом классе большинство того, что отвечает за отрисовку маркеров на карте
 public class MarkerDrawer {
-    private ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
-    private ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
+    public static ArrayList<PlacemarkMapObject> listMarkers = new ArrayList<PlacemarkMapObject>();
+    public static ArrayList<RecyclingPoint> listPoints = new ArrayList<RecyclingPoint>();
 
     public static Context context;
 

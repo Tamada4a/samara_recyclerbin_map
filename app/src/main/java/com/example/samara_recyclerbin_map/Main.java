@@ -882,7 +882,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        //mapObjects.remove(mapObject);
+                                        if (MarkerDrawer.listMarkers.contains(mapObject)) MarkerDrawer.listMarkers.remove(mapObject);
+                                        if (MarkerDrawer.listPoints.contains(data)) MarkerDrawer.listPoints.remove(data);
+                                        if (listCustomMarkers.contains(mapObject)) listCustomMarkers.remove(mapObject);
+                                        if (listCustomPoints.contains(data)) listCustomPoints.remove(data);
+                                        mapObjects.remove(mapObject);
                                         //удаление
                                         dialogInterface.cancel();
 
