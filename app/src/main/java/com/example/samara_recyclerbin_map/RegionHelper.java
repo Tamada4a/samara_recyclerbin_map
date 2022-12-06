@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.mapview.MapView;
 
 //Данный класс используется для ограничения области пользователя до определенной зоны
@@ -21,13 +20,24 @@ public class RegionHelper {
     private Point rightUpperCornerPoint;
     private Point rightLowerCornerPoint;
 
-    //0 - если пользователь вышел за пределы, то просто пишет, что за пределами
-    //1 - переводит камеру в стартовую допустимой зоны
     private boolean typeOfRestriction;
 
     private Main main;
 
-
+    /**
+     *
+     * @param leftUpperCornerPoint - левая верхняя точка границы допустимой зоны
+     * @param leftLowerCornerPoint - левая нижняя точка границы допустимой зоны
+     * @param rightUpperCornerPoint - правая верхняя точка границы допустимой зоны
+     * @param rightLowerCornerPoint - правая нижняя точка границы допустимой зоны
+     * @param startPoint - точка, куда, в случае выхода за границу, будет передвигаться камера
+     * @param maxZoomLevel - максиамльный допустимый уровень зума
+     * @param comfortableZoom - уровень зума, на который, в случае превышения, опустится камера
+     * @param main - объект класса Main
+     * @param typeOfRestriction:
+     *                         0 - если пользователь вышел за пределы, то просто пишет, что пользователь вышел за границы
+     *                         1 - переводит камеру в startPoint
+     */
     public RegionHelper(Point leftUpperCornerPoint, Point leftLowerCornerPoint, Point rightUpperCornerPoint, Point rightLowerCornerPoint, Point startPoint, float maxZoomLevel, float comfortableZoom, Main main, boolean typeOfRestriction){
         this.leftUpperCornerPoint = leftUpperCornerPoint;
         this.leftLowerCornerPoint = leftLowerCornerPoint;
@@ -40,7 +50,12 @@ public class RegionHelper {
         this.typeOfRestriction = typeOfRestriction;
     }
 
-
+    /**
+     *
+     * @param currentCameraPosition - точка, где в данный момент находится камера
+     * @param currentZoom - текущий зум
+     * @param mapview - наш mapview. Изменение положения камеры происходи через этот метод
+     */
     public void isInRegion(@NonNull Point currentCameraPosition, float currentZoom, MapView mapview){
         boolean coordinateResult = true;
         boolean zoomResult = true;
