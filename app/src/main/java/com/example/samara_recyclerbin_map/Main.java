@@ -6,21 +6,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -29,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -84,6 +72,8 @@ import java.util.List;
 
 public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener{
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    private static final float COMFORTABLE_ZOOM_LEVEL = 14.0f;
+    private static final float MAX_ZOOM_LEVEL = 11.0f;
 
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
     private final Point leftUpperCornerPoint = new Point(53.4234,50.0015);
@@ -172,6 +162,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 new Animation(Animation.Type.SMOOTH, 3),
                 null);
 
+        regionHelper = new RegionHelper(leftUpperCornerPoint, leftLowerCornerPoint, rightUpperCornerPoint, rightLowerCornerPoint, START_POINT, MAX_ZOOM_LEVEL, COMFORTABLE_ZOOM_LEVEL, this, true);
+
         mapview.getMap().addInputListener(mapTapListener);
         mapview.getMap().addCameraListener(cameraListener);
 
@@ -186,7 +178,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
         markerDrawer = new MarkerDrawer(this, mapObjects, placeMarkTapListener);
-        regionHelper = new RegionHelper(leftUpperCornerPoint, leftLowerCornerPoint, rightUpperCornerPoint, rightLowerCornerPoint, true);
+
 
         mapObjects = markerDrawer.drawDefaultMarkers();
 
@@ -203,7 +195,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         sideMenuHeader = sideMenu.getHeaderView(0);
         drawerLayout = findViewById(R.id.drawerLayout);
         //drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            //закомментил строчку выше ^ чтоб можно было свайпать менюшку
 
         papers_menu_button = sideMenuHeader.findViewById(R.id.papers_menu_button);
         glass_menu_button = sideMenuHeader.findViewById(R.id.glass_menu_button);
@@ -226,10 +217,14 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             public void onClick(View view) {
                 if(userLocationLayer.cameraPosition() != null){
                     Point userPoint = userLocationLayer.cameraPosition().getTarget();
-                    mapview.getMap().move(
-                            new CameraPosition(userPoint, 15.0f, 0.0f, 0.0f),
-                            new Animation(Animation.Type.SMOOTH, 1.2f),
-                            null);
+                    if(regionHelper.isUserInRegion(userPoint)) {
+                        mapview.getMap().move(
+                                new CameraPosition(userPoint, 15.0f, 0.0f, 0.0f),
+                                new Animation(Animation.Type.SMOOTH, 1.2f),
+                                null);
+                    }
+                    else
+                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона!", Toast.LENGTH_SHORT).show();
                 }
                 else
                     Toast.makeText(Main.this, "У вас выключен GPS", Toast.LENGTH_LONG).show();
@@ -340,7 +335,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         metal_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -355,7 +349,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchCustomTypes(checked);
             }
         });
-
 
 
         cloths_menu_button.setOnClickListener(new View.OnClickListener() {
@@ -374,7 +367,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         other_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -389,7 +381,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchCustomTypes(checked);
             }
         });
-
 
 
         dangerous_menu_button.setOnClickListener(new View.OnClickListener() {
@@ -408,7 +399,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         batteries_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -423,7 +413,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchCustomTypes(checked);
             }
         });
-
 
 
         lamp_menu_button.setOnClickListener(new View.OnClickListener() {
@@ -442,7 +431,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         appliances_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -457,7 +445,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchCustomTypes(checked);
             }
         });
-
 
 
         tetra_menu_button.setOnClickListener(new View.OnClickListener() {
@@ -476,7 +463,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         lid_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -493,7 +479,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         tires_menu_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -508,7 +493,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 searchCustomTypes(checked);
             }
         });
-
 
 
         ok_button.setOnClickListener(new View.OnClickListener() { //когда кликаем на ок строится маршрут
@@ -775,7 +759,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         });
 
 
-
         addCustomPoint_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
@@ -856,7 +839,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         @Override
         public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition, @NonNull CameraUpdateReason cameraUpdateReason, boolean b) {
-            regionHelper.isInRegion(map.getVisibleRegion(), cameraPosition.getZoom(), cameraPosition.getTarget());
+            System.out.println("Тут это, того " + map.getVisibleRegion().getTopRight().getLongitude() + " " + map.getVisibleRegion().getTopRight().getLatitude() + "\n"
+            +map.getVisibleRegion().getBottomLeft().getLongitude() + " " + map.getVisibleRegion().getBottomLeft().getLatitude());
+            System.out.println("ZOOM " + cameraPosition.getZoom());
+            if(b)
+                regionHelper.isInRegion(cameraPosition.getTarget(), cameraPosition.getZoom(), mapview);
         }
     };
 
@@ -895,7 +882,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     };
 
     //тут немного добавил. помимо data передаём еще и сам MapObject. А именно Placemark. это надо для удаления
-    private void showPointInfo(MapObject mapObject, RecyclingPoint data){
+    private void showPointInfo(MapObject mapObject, @NonNull RecyclingPoint data){
         AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
                 .setTitle(data.getLocationName())
                 .setMessage(data.getInfo() + "\n" + data.getLocation())
