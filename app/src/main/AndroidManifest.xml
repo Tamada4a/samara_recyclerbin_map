@@ -18,7 +18,7 @@
         android:theme="@style/Theme.Samara_recyclerbin_map"
         tools:targetApi="31">
         <activity
-            android:name=".Welcome"
+            android:name=".Activities.Welcome"
             android:exported="true"
             android:theme="@style/Theme.Samara_recyclerbin_map">
             <meta-data
@@ -31,7 +31,7 @@
 
         </activity>
         <activity
-            android:name=".Main"
+            android:name=".Activities.Main"
             android:exported="true"
             android:theme="@style/Theme.Samara_recyclerbin_map">
             <meta-data
