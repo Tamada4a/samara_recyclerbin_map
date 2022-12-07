@@ -1076,7 +1076,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void networkUnavailable() {
-        Toast.makeText(this, "Потеряно интернет-соединение, могут быть проблемы!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Потеряно интернет-соединение, приложение может работать некорректно!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
