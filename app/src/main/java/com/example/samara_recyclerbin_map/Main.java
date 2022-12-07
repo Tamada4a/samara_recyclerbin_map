@@ -4,6 +4,7 @@ import static com.example.samara_recyclerbin_map.MarkerDrawer.types;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -70,7 +71,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener{
+public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener, NetworkStateReceiver.NetworkStateReceiverListener {
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
     private static final float COMFORTABLE_ZOOM_LEVEL = 14.0f;
     private static final float MAX_ZOOM_LEVEL = 11.0f;
@@ -100,6 +101,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     private MarkerDrawer markerDrawer;
     private RegionHelper regionHelper;
+    private NetworkStateReceiver networkStateReceiver;
 
     private ImageButton ok_button;
     private ImageButton cancel_button;
@@ -162,8 +164,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 new Animation(Animation.Type.SMOOTH, 3),
                 null);
 
-        regionHelper = new RegionHelper(leftUpperCornerPoint, leftLowerCornerPoint, rightUpperCornerPoint, rightLowerCornerPoint, START_POINT, MAX_ZOOM_LEVEL, COMFORTABLE_ZOOM_LEVEL, this, true);
-
         mapview.getMap().addInputListener(mapTapListener);
         mapview.getMap().addCameraListener(cameraListener);
 
@@ -177,8 +177,13 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
-        markerDrawer = new MarkerDrawer(this, mapObjects, placeMarkTapListener);
+        regionHelper = new RegionHelper(leftUpperCornerPoint, leftLowerCornerPoint, rightUpperCornerPoint, rightLowerCornerPoint, START_POINT, MAX_ZOOM_LEVEL, COMFORTABLE_ZOOM_LEVEL, this, true);
 
+        networkStateReceiver = new NetworkStateReceiver();
+        networkStateReceiver.addListener(this);
+        this.registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+
+        markerDrawer = new MarkerDrawer(this, mapObjects, placeMarkTapListener);
 
         mapObjects = markerDrawer.drawDefaultMarkers();
 
@@ -797,6 +802,13 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         mapview.onStart();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networkStateReceiver.removeListener(this);
+        this.unregisterReceiver(networkStateReceiver);
+    }
+
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 "android.permission.ACCESS_FINE_LOCATION")
@@ -840,10 +852,13 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         @Override
         public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition, @NonNull CameraUpdateReason cameraUpdateReason, boolean b) {
             System.out.println("Тут это, того " + map.getVisibleRegion().getTopRight().getLongitude() + " " + map.getVisibleRegion().getTopRight().getLatitude() + "\n"
-            +map.getVisibleRegion().getBottomLeft().getLongitude() + " " + map.getVisibleRegion().getBottomLeft().getLatitude());
+                    + map.getVisibleRegion().getBottomLeft().getLongitude() + " " + map.getVisibleRegion().getBottomLeft().getLatitude());
             System.out.println("ZOOM " + cameraPosition.getZoom());
-            if(b)
+            if (b) {
                 regionHelper.isInRegion(cameraPosition.getTarget(), cameraPosition.getZoom(), mapview);
+//                if(!internetListener.checkInternet(Main.this))
+//                    Toast.makeText(Main.this, "", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -1056,6 +1071,15 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     }
 
     @Override
+    public void networkAvailable() {
+    }
+
+    @Override
+    public void networkUnavailable() {
+        Toast.makeText(this, "Потеряно интернет-соединение, могут быть проблемы!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onMasstransitRoutes(@NonNull List<Route> list) {
         if (list.size() > 0) {
             for (Section section : list.get(0).getSections()) {
@@ -1164,5 +1188,4 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
 
     }
-
 }
