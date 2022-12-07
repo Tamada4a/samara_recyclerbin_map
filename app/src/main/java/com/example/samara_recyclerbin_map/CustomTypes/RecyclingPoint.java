@@ -1,4 +1,4 @@
-package com.example.samara_recyclerbin_map;
+package com.example.samara_recyclerbin_map.CustomTypes;
 
 import com.yandex.mapkit.geometry.Point;
 

@@ -1,9 +1,10 @@
-package com.example.samara_recyclerbin_map;
+package com.example.samara_recyclerbin_map.Helpers;
 
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.samara_recyclerbin_map.Activities.Main;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.CameraPosition;
