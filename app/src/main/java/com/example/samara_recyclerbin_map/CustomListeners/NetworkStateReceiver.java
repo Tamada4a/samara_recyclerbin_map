@@ -1,4 +1,4 @@
-package com.example.samara_recyclerbin_map;
+package com.example.samara_recyclerbin_map.CustomListeners;
 
 
 import android.content.BroadcastReceiver;
@@ -10,6 +10,9 @@ import android.net.NetworkInfo;
 import java.util.HashSet;
 import java.util.Set;
 
+/*
+* Слушатель, который выводит сообщение о том, есть ли интернет-соединение или нет
+*/
 public class NetworkStateReceiver extends BroadcastReceiver {
 
     protected Set<NetworkStateReceiverListener> listeners;
@@ -45,7 +48,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         if(connected == null || listener == null)
             return;
 
-        if(connected == true)
+        if(connected)
             listener.networkAvailable();
         else
             listener.networkUnavailable();
