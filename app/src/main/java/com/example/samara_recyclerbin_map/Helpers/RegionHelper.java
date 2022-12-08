@@ -11,6 +11,7 @@ import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.mapview.MapView;
 
 //Данный класс используется для ограничения области пользователя до определенной зоны
+//Пока он не используется, смотрите коммиты до 08.12.22 22:00 МСК - там всё есть
 public class RegionHelper {
     private float maxZoomLevel;
     private float comfortableZoom;
