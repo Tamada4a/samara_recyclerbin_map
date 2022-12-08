@@ -76,6 +76,7 @@ import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener, NetworkStateReceiver.NetworkStateReceiverListener {
@@ -140,6 +141,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private ImageButton menu_button;
     private ImageButton addCustomPoint_button;
     private ImageButton reset_button;
+
+    private String routeType = "";
 
     private DrawerLayout drawerLayout;
     private NavigationView sideMenu;
@@ -1107,6 +1110,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 mapObjects.remove(poly);
             currentPath = new ArrayList<>();
         }
+        if (clickedPoint != null) clickedPoint = null;
         if (destination != null) destination.setVisible(false);
         isCustomPoint = false;
         isCreatingWithCustomPoint = false;
@@ -1115,6 +1119,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     //Прокладываем автомобильный маршрут
     private void createDrivingRoute(Point start) {
         List<RequestPoint> points = new ArrayList<>();
+        routeType = "Drive";
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
         points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
@@ -1128,6 +1133,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     //Прокладываем пеший маршрут
     private void createPedestrianRoute(Point start) {
         List<RequestPoint> points = new ArrayList<>();
+        routeType = "Pedestrian";
 
         points.add(new RequestPoint(start, RequestPointType.WAYPOINT, null));
         points.add(new RequestPoint(clickedPoint, RequestPointType.WAYPOINT, null));
@@ -1259,6 +1265,17 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-
+        if (userLocationLayer.cameraPosition() != null && clickedPoint != null && !routeType.isEmpty()){
+            Point userPoint = userLocationLayer.cameraPosition().getTarget();
+            if(userPoint == clickedPoint){
+                deleteCurrentPath();
+            }
+            else{
+                if(Objects.equals(routeType, "Drive"))
+                    createDrivingRoute(userPoint);
+                else
+                    createPedestrianRoute(userPoint);
+            }
+        }
     }
 }
