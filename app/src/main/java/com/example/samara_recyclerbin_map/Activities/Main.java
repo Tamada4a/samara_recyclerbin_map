@@ -760,6 +760,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         addCustomPoint_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
+                if(isCustomPoint){
+                    isCustomPoint = false;
+                    isCreatingWithCustomPoint = false;
+                }
+                if(destination != null) destination.setVisible(false);
                 isCreatingRecyclePonit = true; //активируем состояние создания кастомного пункта
                 addCustomPoint_button.setVisibility(View.GONE); // появляется кнопка "крестика" и пропадает "плюсик"
                 cancel_button.setVisibility(View.VISIBLE);
@@ -827,6 +832,14 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     isCustomPoint = false;
                     isCreatingWithCustomPoint = false;
                 }
+                if(isCreatingRecyclePonit) {
+                    isCreatingRecyclePonit = false; //убираем состояние создания кастомного пункта
+                    cancel_button.setVisibility(View.GONE); //откатываемся к первичному интерфейсу
+                    if (customMarker != null && customMarker.isVisible()) //удаляем маркер, если ставили
+                        customMarker.setVisible(false);
+                    addCustomPoint_button.setVisibility(View.VISIBLE);
+                    ok_button.setVisibility(View.GONE);
+                }
                 Object userData = mapObject.getUserData();
 
                 if(userData instanceof RecyclingPoint){
@@ -851,7 +864,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     destination.setGeometry(point);
                     destination.setVisible(true);
                 }
-                Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
                 destination.setDraggable(true);//делаем маркер двигаемым
                 ok_button.setVisibility(View.VISIBLE);//показываем кнопку ОК для подтверждения точки
             }
@@ -863,7 +876,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     customMarker.setGeometry(point);
                     customMarker.setVisible(true);
                 }
-                Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
                 customMarker.setDraggable(true);
                 ok_button.setVisibility(View.VISIBLE);
             }
