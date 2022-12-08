@@ -249,7 +249,7 @@ public class MarkerDrawer {
         listPoints.add(point17);
 
 //Экомобиль
-        String[] ecomobil = {"Dangerous", "Other", "Clothes", "Appliance", "Plastic", "Glass", "Paper", "Metal", "Lid"}; // ЭкоМобиль
+        String[] ecomobil = {"Dangerous", "Other", "Clothes", "Appliances", "Plastic", "Glass", "Paper", "Metal", "Lid"}; // ЭкоМобиль
         Bitmap bitmapEcomobil = drawRingChartMarker(ecomobil);
         PlacemarkMapObject markerTest18 = mapObjects.addPlacemark(new Point(53.213929, 50.257167), ImageProvider.fromBitmap(bitmapEcomobil));
         RecyclingPoint point18 = new RecyclingPoint(new Point(53.213929, 50.257167), "ул. Физкультурная, 101, Дворец спорта", "Экомобиль", "ЭкоМобиль – мобильный пункт бесплатного приема вторичного сырья. Уточняйте время работы на https://vk.com/ekovoz63", ecomobil);
@@ -330,7 +330,7 @@ public class MarkerDrawer {
         listPoints.add(point26);
 
 //Пункт приёма ВтоЦветЧерМет
-        String[] vcchm = {"Appliance", "Batteries", "Other", "Metal", "Plastic", "Paper"}; // ВтоЦветЧерМет - техника + батарейки + иное + метал + пластик + бумага
+        String[] vcchm = {"Appliances", "Batteries", "Other", "Metal", "Plastic", "Paper"}; // ВтоЦветЧерМет - техника + батарейки + иное + метал + пластик + бумага
         Bitmap bitmapVtoCvet = drawRingChartMarker(vcchm);
         PlacemarkMapObject markerTest27 = mapObjects.addPlacemark(new Point(53.256595, 50.365241), ImageProvider.fromBitmap(bitmapVtoCvet));
         RecyclingPoint point27 = new RecyclingPoint(new Point(53.256595, 50.365241), "пгт. Смышляевка ул. Механиков, 3 (напротив Деловых Линий)", "Пункт приёма ВтоЦветЧерМет", "Приём лома чёрных, цветных металлов, пленки, пластика, электронного лома, макулатуры", vcchm);
@@ -348,7 +348,7 @@ public class MarkerDrawer {
         listPoints.add(point28);
 
 //Пункт приёма ВтоЦветЧерМет
-        String[] vcchm2 = {"Appliance",  "Metal", "Plastic", "Paper"}; // ВтоЦветЧерМет - техника + батарейки + иное + метал + пластик + бумага
+        String[] vcchm2 = {"Appliances",  "Metal", "Plastic", "Paper"}; // ВтоЦветЧерМет - техника + батарейки + иное + метал + пластик + бумага
         Bitmap bitmapVtoCvet2 = drawRingChartMarker(vcchm2);
         PlacemarkMapObject markerTest29 = mapObjects.addPlacemark(new Point(53.251574, 50.308575), ImageProvider.fromBitmap(bitmapVtoCvet2));
         RecyclingPoint point29 = new RecyclingPoint(new Point(53.251574, 50.308575), "Магистральная, 154Б", "Пункт приёма ВтоЦветЧерМет", "Приём лома чёрных, цветных металлов, пленки, пластика, электронного лома, макулатуры", vcchm2);
@@ -408,7 +408,7 @@ public class MarkerDrawer {
         listPoints.add(point35);
 
 //КРОНА
-        String[] krona = {"Appliance", "Metal", "Plastic"}; // крона - техника + метал + пластик
+        String[] krona = {"Appliances", "Metal", "Plastic"}; // крона - техника + метал + пластик
         Bitmap bitmapKrona = drawRingChartMarker(krona);
         PlacemarkMapObject markerTest36 = mapObjects.addPlacemark(new Point(53.172600, 50.194610), ImageProvider.fromBitmap(bitmapKrona));
         RecyclingPoint point36 = new RecyclingPoint(new Point(53.172600, 50.194610), "Заводское шоссе, 1г", "КРОНА, ООО", "Принимает металлолом, пластик. В том числе электронный лом", krona);
@@ -418,7 +418,7 @@ public class MarkerDrawer {
         listPoints.add(point36);
 
 //Тайммет Вторчермет
-        String[] timemet = {"Appliance", "Metal"}; // тайммет - техника + метал
+        String[] timemet = {"Appliances", "Metal"}; // тайммет - техника + метал
         Bitmap bitmapTimemet = drawRingChartMarker(timemet);
         PlacemarkMapObject markerTest37 = mapObjects.addPlacemark(new Point(53.179308, 50.208755), ImageProvider.fromBitmap(bitmapTimemet));
         RecyclingPoint point37 = new RecyclingPoint(new Point(53.179308, 50.208755), "Заводское ш., 5 к.1", "Тайммет Вторчермет", "Принимает металлолом, пластик. В том числе электронный лом", timemet);
@@ -447,7 +447,7 @@ public class MarkerDrawer {
         listPoints.add(point39);
 
 //Зеленый городок, пункт приёма вторсырья
-        String[] greenTown = {"Lid", "Appliance", "Other", "Metal", "Plastic", "Glass", "Paper"}; // зеленый городок - крышки + техника + другое + метал + пластик + стекло + бумага
+        String[] greenTown = {"Lid", "Appliances", "Other", "Metal", "Plastic", "Glass", "Paper"}; // зеленый городок - крышки + техника + другое + метал + пластик + стекло + бумага
         Bitmap bitmapGreenTown = drawRingChartMarker(greenTown);
         PlacemarkMapObject markerTest40 = mapObjects.addPlacemark(new Point(53.181407, 50.110218), ImageProvider.fromBitmap(bitmapGreenTown));
         RecyclingPoint point40 = new RecyclingPoint(new Point(53.181407, 50.110218), "ул.Неверова, 1а", "Зеленый городок, пункт приёма вторсырья", "Социальный экологический проект \"Зелёный городок\".", greenTown);
@@ -505,7 +505,7 @@ public class MarkerDrawer {
         listPoints.add(point46);
 
 //Вагон, сервис по вывозу ненужных вещей
-        String[] vagon = {"Appliance", "Other", "Clothes"}; //вагон - техника + одежда + другое
+        String[] vagon = {"Appliances", "Other", "Clothes"}; //вагон - техника + одежда + другое
         Bitmap bitmapVagon = drawRingChartMarker(vagon);
         PlacemarkMapObject markerTest47 = mapObjects.addPlacemark(new Point(53.200490, 50.172292), ImageProvider.fromBitmap(bitmapVagon));
         RecyclingPoint point47 = new RecyclingPoint(new Point(53.200490, 50.172292), "ул. Гагарина, 24а", "Вагон, сервис по вывозу ненужных вещей", "Сервис по вывозу ненужных вещей. Принимают одежду, посуду, книги, технику, бижутерию, аксессуары, предметы интерьера, технику, в тч. крупную, мебель и многое другое.", vagon);
@@ -539,7 +539,7 @@ public class MarkerDrawer {
         listPoints.add(point50);
 
 //Бокс для старых телефонов в Tele2
-        String[] appliance = {"Appliance"}; // техника
+        String[] appliance = {"Appliances"}; // техника
         Bitmap bitmapAppliance = drawRingChartMarker(appliance);
         PlacemarkMapObject markerTest51 = mapObjects.addPlacemark(new Point(53.190323, 50.190476), ImageProvider.fromBitmap(bitmapAppliance));
         RecyclingPoint point51 = new RecyclingPoint(new Point(53.190323, 50.190476), "ул. Аэродромная, 47, ТРЦ Аврора Молл", "Бокс для старых телефонов в Tele2", "Бокс для старых телефонов в салоне Tele2.", appliance);
@@ -627,6 +627,55 @@ public class MarkerDrawer {
         drawable.draw(canvas);
 
         return bitmap;
+    }
+
+    //Получаем id для каждой svg для добавления в информацию о точках
+    public int getDrawableId(@NonNull String type){
+
+        int drawableId = 0;
+
+        switch (type) {
+            case "Paper":
+                drawableId = R.drawable.papers_selected;
+                break;
+            case "Glass":
+                drawableId = R.drawable.glass_selected;
+                break;
+            case "Plastic":
+                drawableId = R.drawable.plastic_selected;
+                break;
+            case "Metal":
+                drawableId = R.drawable.metal_selected;
+                break;
+            case "Clothes":
+                drawableId = R.drawable.cloths_selected;
+                break;
+            case "Other":
+                drawableId = R.drawable.other_selected;
+                break;
+            case "Dangerous":
+                drawableId = R.drawable.dangerous_selected;
+                break;
+            case "Batteries":
+                drawableId = R.drawable.batteries_selected;
+                break;
+            case "Lamp":
+                drawableId = R.drawable.lamp_selected;
+                break;
+            case "Appliances":
+                drawableId = R.drawable.appliances_selected;
+                break;
+            case "Tetra":
+                drawableId = R.drawable.tetra_selected;
+                break;
+            case "Lid":
+                drawableId = R.drawable.lid_selected;
+                break;
+            case "Tires":
+                drawableId = R.drawable.tires_selected;
+                break;
+        }
+        return drawableId;
     }
 
     //отображение маркеров с выбранными типами мусорок
