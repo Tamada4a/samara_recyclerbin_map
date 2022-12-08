@@ -23,7 +23,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.samara_recyclerbin_map.Helpers.MarkerDrawer;
-import com.example.samara_recyclerbin_map.Helpers.RegionHelper;
 import com.example.samara_recyclerbin_map.CustomListeners.NetworkStateReceiver;
 import com.example.samara_recyclerbin_map.CustomTypes.RecyclingPoint;
 
@@ -105,7 +104,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private List<PolylineMapObject> currentPath = new ArrayList<>();
 
     private MarkerDrawer markerDrawer;
-    private RegionHelper regionHelper;
     private NetworkStateReceiver networkStateReceiver;
 
     private ImageButton ok_button;
@@ -174,7 +172,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 null);
 
         mapview.getMap().addInputListener(mapTapListener);
-        mapview.getMap().addCameraListener(cameraListener);
 
         requestLocationPermission();
 
@@ -186,7 +183,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         mapObjects = mapview.getMap().getMapObjects().addCollection();
 
-        regionHelper = new RegionHelper(leftUpperCornerPoint, leftLowerCornerPoint, rightUpperCornerPoint, rightLowerCornerPoint, START_POINT, MAX_ZOOM_LEVEL, COMFORTABLE_ZOOM_LEVEL, this, true);
 
         networkStateReceiver = new NetworkStateReceiver();
         networkStateReceiver.addListener(this);
@@ -234,15 +230,10 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             public void onClick(View view) {
                 if(userLocationLayer.cameraPosition() != null){
                     Point userPoint = userLocationLayer.cameraPosition().getTarget();
-                    if(regionHelper.isUserInRegion(userPoint)) {
-                        mapview.getMap().move(
-                                new CameraPosition(userPoint, 15.0f, 0.0f, 0.0f),
-                                new Animation(Animation.Type.SMOOTH, 1.2f),
-                                null);
-                    }
-                    else {
-                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона", Toast.LENGTH_SHORT).show();
-                    }
+                    mapview.getMap().move(
+                            new CameraPosition(userPoint, 15.0f, 0.0f, 0.0f),
+                            new Animation(Animation.Type.SMOOTH, 1.2f),
+                            null);
                 }
                 else
                     Toast.makeText(Main.this, "У вас выключен GPS", Toast.LENGTH_LONG).show();
@@ -848,17 +839,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
     };
 
-    //обработка изменения положения камеры
-    private CameraListener cameraListener = new CameraListener() {
-
-        @Override
-        public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition, @NonNull CameraUpdateReason cameraUpdateReason, boolean b) {
-            if (b) {
-                regionHelper.isInRegion(cameraPosition.getTarget(), cameraPosition.getZoom(), mapview);
-            }
-        }
-    };
-
     //обработка нажатия на карту
     private InputListener mapTapListener = new InputListener() {
         @Override
@@ -1020,16 +1000,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
             public void onClick(View view) {
                 if(userLocationLayer.cameraPosition() != null) {
                     Point userPoint = userLocationLayer.cameraPosition().getTarget();
-                    if(regionHelper.isUserInRegion(userPoint)) {
-                        //если выбрали геолокацию, то блочу все, связанное с кастомным, чтоб не ломалось
-                        isCustomPoint = false;
-                        isCreatingWithCustomPoint = false;
-                        showCreateRouteOptions(userPoint);
-                        dialogStartOption.cancel();
-                    }
-                    else{
-                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона", Toast.LENGTH_SHORT).show();
-                    }
+                    //если выбрали геолокацию, то блочу все, связанное с кастомным, чтоб не ломалось
+                    isCustomPoint = false;
+                    isCreatingWithCustomPoint = false;
+                    showCreateRouteOptions(userPoint);
+                    dialogStartOption.cancel();
                 }else{
                     Toast.makeText(Main.this, "Необходимо включить геолокацию", Toast.LENGTH_SHORT).show();
                 }
@@ -1110,7 +1085,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 mapObjects.remove(poly);
             currentPath = new ArrayList<>();
         }
-        if (clickedPoint != null) clickedPoint = null;
         if (destination != null) destination.setVisible(false);
         isCustomPoint = false;
         isCreatingWithCustomPoint = false;
@@ -1265,17 +1239,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
-        if (userLocationLayer.cameraPosition() != null && clickedPoint != null && !routeType.isEmpty()){
-            Point userPoint = userLocationLayer.cameraPosition().getTarget();
-            if(userPoint == clickedPoint){
-                deleteCurrentPath();
-            }
-            else{
-                if(Objects.equals(routeType, "Drive"))
-                    createDrivingRoute(userPoint);
-                else
-                    createPedestrianRoute(userPoint);
-            }
-        }
+
     }
 }
