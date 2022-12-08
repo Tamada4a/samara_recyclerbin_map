@@ -55,16 +55,13 @@ public class RegionHelper {
      *
      * @param currentCameraPosition - точка, где в данный момент находится камера
      * @param currentZoom - текущий зум
-     * @param mapview - наш mapview. Изменение положения камеры происходи через этот метод
+     * @param mapview - наш mapview. Изменение положения камеры происходит через этот метод
      */
     public void isInRegion(@NonNull Point currentCameraPosition, float currentZoom, MapView mapview){
         boolean coordinateResult = true;
         boolean zoomResult = true;
 
-        if(currentCameraPosition.getLongitude() > rightLowerCornerPoint.getLongitude() ||
-        currentCameraPosition.getLongitude() < leftLowerCornerPoint.getLongitude() ||
-        currentCameraPosition.getLatitude() > rightUpperCornerPoint.getLatitude() ||
-        currentCameraPosition.getLatitude() < leftLowerCornerPoint.getLatitude()) coordinateResult = false;
+        if(!isUserInRegion(currentCameraPosition)) coordinateResult = false;
         else if (currentZoom < maxZoomLevel) zoomResult = false;
 
         if(!coordinateResult || !zoomResult){
@@ -80,7 +77,7 @@ public class RegionHelper {
                         new Animation(Animation.Type.SMOOTH, 0.5f),
                         null);
             }
-            Toast.makeText(main, "Вы вышли за границы допустимого региона!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(main, "Вы вышли за границы допустимого региона", Toast.LENGTH_SHORT).show();
         }
     }
 

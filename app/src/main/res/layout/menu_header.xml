@@ -7,7 +7,7 @@
     app:flChildSpacing="0dp"
     app:flChildSpacingForLastRow="align"
     app:flRowSpacing="10dp"
-    tools:context=".Main"
+    tools:context=".Activities.Main"
     tools:ignore="MissingClass">
 
 
