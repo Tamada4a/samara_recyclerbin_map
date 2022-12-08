@@ -763,6 +763,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 if(isCustomPoint){
                     isCustomPoint = false;
                     isCreatingWithCustomPoint = false;
+                    ok_button.setVisibility(View.GONE);
                 }
                 if(destination != null) destination.setVisible(false);
                 isCreatingRecyclePonit = true; //активируем состояние создания кастомного пункта
