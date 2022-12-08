@@ -552,8 +552,7 @@ public class MarkerDrawer {
     }
 
     //добавляем свой маркер
-    public MapObjectCollection drawCustomMarker(@NonNull boolean[] checked2, Point point, String location, String name, String info, @NonNull MapObjectCollection mainMapObjects){
-        mapObjects = mainMapObjects;
+    public MapObjectCollection drawCustomMarker(@NonNull boolean[] checked2, Point point, String location, String name, String info){
 
         ArrayList<String> typesList = new ArrayList<String>();
         //засовываем в temp типы мусора, который выбрал чел
@@ -579,8 +578,7 @@ public class MarkerDrawer {
     }
 
     //удаляем маркер
-    public MapObjectCollection removeMarker(MapObject mapObject, @NonNull RecyclingPoint data, @NonNull MapObjectCollection mainMapObjects){
-        mapObjects = mainMapObjects;
+    public MapObjectCollection removeMarker(MapObject mapObject, @NonNull RecyclingPoint data){
 
         //проверяем каждый лист на содержание Placemark'a и RecyclingPoint'а
         //если он хранится именно в том или ином листе - удаляем
@@ -597,8 +595,7 @@ public class MarkerDrawer {
     }
 
     //возвращаем все маркеры к исходному положению
-    public MapObjectCollection resetMarkers(MapObjectCollection mainMapObjects){
-        mapObjects = mainMapObjects;
+    public MapObjectCollection resetMarkers(){
 
         //проверяем есть ли чо то в каждом ArrayList'е (чтобы не удалять из пустого)
         if(listCustomMarkers.size() > 0) listCustomMarkers.clear();

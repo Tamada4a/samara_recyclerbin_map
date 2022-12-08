@@ -261,7 +261,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //по новой рисуем все наши маркеры
-                                mapObjects = markerDrawer.resetMarkers(mapObjects);
+                                mapObjects = markerDrawer.resetMarkers();
                                 reset_button.setVisibility(View.GONE); // кнопка СБРОСА опять пропадает 0_0
                                 dialogInterface.cancel();
 
@@ -703,7 +703,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
                             } else {//если всё норм и ошибки нет, создаём пункт
                                 mapObjects = markerDrawer.drawCustomMarker(checked2, customMarker.getGeometry(), location.getText().toString(),
-                                        name.getText().toString(), info.getText().toString(), mapObjects);
+                                        name.getText().toString(), info.getText().toString());
 
                                 customMarker.setVisible(false); //убираем метку, которую ставили на карте
                                 ok_button.setVisibility(View.GONE); //кнопочка "ок" пропадает
@@ -819,9 +819,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
         @Override
         public void onCameraPositionChanged(@NonNull Map map, @NonNull CameraPosition cameraPosition, @NonNull CameraUpdateReason cameraUpdateReason, boolean b) {
-            System.out.println("Тут это, того " + map.getVisibleRegion().getTopRight().getLongitude() + " " + map.getVisibleRegion().getTopRight().getLatitude() + "\n"
-                    + map.getVisibleRegion().getBottomLeft().getLongitude() + " " + map.getVisibleRegion().getBottomLeft().getLatitude());
-            System.out.println("ZOOM " + cameraPosition.getZoom());
             if (b) {
                 regionHelper.isInRegion(cameraPosition.getTarget(), cameraPosition.getZoom(), mapview);
             }
@@ -885,7 +882,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        mapObjects = markerDrawer.removeMarker(mapObject, data, mapObjects);
+                                        mapObjects = markerDrawer.removeMarker(mapObject, data);
                                         reset_button.setVisibility(View.VISIBLE); //появляется кнопка СБРОСА, т.к. мы удалили пункт
                                         dialogInterface.cancel();
 
