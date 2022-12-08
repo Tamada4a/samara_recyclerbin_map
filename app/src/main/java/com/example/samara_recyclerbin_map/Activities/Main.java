@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +30,7 @@ import com.example.samara_recyclerbin_map.CustomTypes.RecyclingPoint;
 import com.example.samara_recyclerbin_map.R;
 
 import com.google.android.material.navigation.NavigationView;
+import com.nex3z.flowlayout.FlowLayout;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKit;
 import com.yandex.mapkit.MapKitFactory;
@@ -77,14 +80,14 @@ import java.util.List;
 
 public class Main extends AppCompatActivity implements UserLocationObjectListener, Session.RouteListener, DrivingSession.DrivingRouteListener, NetworkStateReceiver.NetworkStateReceiverListener {
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 1;
-    private static final float COMFORTABLE_ZOOM_LEVEL = 14.0f;
+    private static final float COMFORTABLE_ZOOM_LEVEL = 13.0f;
     private static final float MAX_ZOOM_LEVEL = 11.0f;
 
     private final Point START_POINT = new Point(53.212228298365396, 50.17742481807416);
     private final Point leftUpperCornerPoint = new Point(53.4234,50.0015);
     private final Point leftLowerCornerPoint = new Point(53.0928, 50.0015);
-    private final Point rightUpperCornerPoint = new Point(53.4234,50.3840);
-    private final Point rightLowerCornerPoint = new Point(53.0928,50.3840);
+    private final Point rightUpperCornerPoint = new Point(53.4234,50.47532);
+    private final Point rightLowerCornerPoint = new Point(53.0928,50.47532);
 
     private PedestrianRouter pedestrianRouter;
     private DrivingRouter drivingRouter;
@@ -146,9 +149,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private boolean[] checked = {false, false, false, false, false, false, false, false, false, false, false, false, false};
     //checked2 - массив для кнопочек в окошке создания пункта. true - кнопочка нажата, false - не нажата
     private boolean[] checked2 = {false, false, false, false, false, false, false, false, false, false, false, false, false};
+
     private boolean isCustomPoint = false; //нужна для проверки в tapListener'e карты
     private boolean isCreatingWithCustomPoint = false; //по ней удаляю маршрут, есл построен через кастомный маркер
     private boolean isCreatingRecyclePonit = false; // переменная, которая показывает состояние - создаём ли мы сейчас кастомный пункт или нет
+    private boolean isOffline = false; //пропадал ли интернет
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,8 +237,9 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                                 new Animation(Animation.Type.SMOOTH, 1.2f),
                                 null);
                     }
-                    else
-                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона!", Toast.LENGTH_SHORT).show();
+                    else {
+                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 else
                     Toast.makeText(Main.this, "У вас выключен GPS", Toast.LENGTH_LONG).show();
@@ -254,26 +260,44 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         reset_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
-                        .setTitle("Сброс до базовых настроек")
-                        .setMessage("Вы уверены, что хотите удалить все созданные пользовательские пункты и вернуться к базовым настройкам?")
-                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //по новой рисуем все наши маркеры
-                                mapObjects = markerDrawer.resetMarkers();
-                                reset_button.setVisibility(View.GONE); // кнопка СБРОСА опять пропадает 0_0
-                                dialogInterface.cancel();
+                AlertDialog.Builder builder = new AlertDialog.Builder(Main.this);
 
-                            }
-                        })
-                        //не хотим удалять -> закрываем окно
-                        .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.cancel();
-                            }
-                        });
+                View infoDialog = LayoutInflater.from(Main.this).inflate(R.layout.info_dialog, null);
+
+                TextView labelInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Label);
+                labelInfo.setText("Сброс до базовых настроек");
+
+                TextView dataInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Text);
+                dataInfo.setText("Вы уверены, что хотите удалить все созданные пользовательские пункты и вернуться к базовым настройкам?");
+
+                TextView positiveButton = (TextView)infoDialog.findViewById(R.id.info_dialog_positiveButton);
+                positiveButton.setText("Да");
+
+                TextView negativeButton = (TextView)infoDialog.findViewById(R.id.info_dialog_NegativeButton);
+                negativeButton.setText("Нет");
+
+                builder.setView(infoDialog);
+
+                AlertDialog dialog = builder.create();
+
+                positiveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //по новой рисуем все наши маркеры
+                        mapObjects = markerDrawer.resetMarkers();
+                        customMarker = null;
+                        reset_button.setVisibility(View.GONE); // кнопка СБРОСА опять пропадает 0_0
+                        dialog.cancel();
+                    }
+                });
+
+                negativeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.cancel();
+                    }
+                });
+
                 dialog.show();
             }
         });
@@ -484,14 +508,13 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         ok_button.setOnClickListener(new View.OnClickListener() { //когда кликаем на ок строится маршрут
             @Override
             public void onClick(View view){
-                if(!isCreatingRecyclePonit) {//если мы не создаём кастомный пункт => мы прокладываем маршрут => работает алгоритм с прокладыванием маршрута
+                if(!isCreatingRecyclePonit) {
                     isCustomPoint = false;
                     destination.setDraggable(false);
                     ok_button.setVisibility(View.GONE);//убираем кнопку
                     showCreateRouteOptions(destination.getGeometry());//строим маршрут по точке
                 } else { //Если создаём кастомный пункт => вылезает окно для создания
                     AlertDialog.Builder builder = new AlertDialog.Builder(Main.this, R.style.AlertDialogCustom);
-                    builder.setTitle("Новый пункт");
 
                     //создаю View в функции чтобы всё работало НоРмАльНо
                     View createPointView = LayoutInflater.from(Main.this).inflate(R.layout.create_point, null);
@@ -499,6 +522,13 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     final EditText name = (EditText) createPointView.findViewById(R.id.input_name);
                     final EditText info = (EditText) createPointView.findViewById(R.id.input_info);
                     final EditText location = (EditText) createPointView.findViewById(R.id.input_address);
+                    TextView label = (TextView) createPointView.findViewById(R.id.infoLabelText);
+
+                    TextView closeButton = (TextView) createPointView.findViewById(R.id.closeButton2);
+                    TextView createButton = (TextView) createPointView.findViewById(R.id.createButton);
+
+                    label.setText("Новый пункт");
+
                     //Инициализирую все наши кнопочки с типами мусора
                     papers_create_button = createPointView.findViewById(R.id.papers_menu_button);
                     glass_create_button = createPointView.findViewById(R.id.glass_menu_button);
@@ -689,10 +719,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     //присваиваю View
                     builder.setView(createPointView);
 
-                    //создать -> создаём пункт
-                    builder.setPositiveButton("Создать", new DialogInterface.OnClickListener() {
+                    AlertDialog dialog = builder.create();
+
+                    createButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(View view) {
                             //проверочка на "user не выбрал ни один тип"
                             boolean exceptionNoTypes = true;
                             for (int i = 0; i < checked2.length; i ++){
@@ -718,15 +749,15 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                             }
                         }
                     });
-                    //закрыть -> закрываем окно
-                    builder.setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+
+                    closeButton.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(View view) {
                             dialog.cancel();
                         }
                     });
 
-                    builder.show();
+                    dialog.show();
                 }
             }
         });
@@ -829,7 +860,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
     private InputListener mapTapListener = new InputListener() {
         @Override
         public void onMapTap(@NonNull Map map, @NonNull Point point) {
-            if(isCustomPoint){ //ну это короче для маршрута - ты помнишь знаешь
+            if(isCustomPoint){
                 if (destination == null) {
                     Bitmap bitmapDest = markerDrawer.drawDestinationMarker();
                     destination = mapObjects.addPlacemark(point, ImageProvider.fromBitmap(bitmapDest));
@@ -837,6 +868,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                     destination.setGeometry(point);
                     destination.setVisible(true);
                 }
+                Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
                 destination.setDraggable(true);//делаем маркер двигаемым
                 ok_button.setVisibility(View.VISIBLE);//показываем кнопку ОК для подтверждения точки
             }
@@ -844,10 +876,11 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
                 if (customMarker == null) { //если маркера нет, то создаём
                     Bitmap bitmapDest = markerDrawer.drawDestinationMarker();
                     customMarker = mapObjects.addPlacemark(point, ImageProvider.fromBitmap(bitmapDest));
-                } else { //если маркер есть, то передвигаем
+                } else {
                     customMarker.setGeometry(point);
                     customMarker.setVisible(true);
                 }
+                Toast.makeText(Main.this, "Вы можете передвигать маркер", Toast.LENGTH_SHORT).show();
                 customMarker.setDraggable(true);
                 ok_button.setVisibility(View.VISIBLE);
             }
@@ -859,119 +892,215 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         }
     };
 
-    //тут немного добавил. помимо data передаём еще и сам MapObject. А именно Placemark. это надо для удаления
+    //Показываем информацию о точке
     private void showPointInfo(MapObject mapObject, @NonNull RecyclingPoint data){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
-                .setTitle(data.getLocationName())
-                .setMessage(data.getInfo() + "\n" + data.getLocation())
-                .setPositiveButton("Показать маршрут", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                            showHowToStart();
-                            dialogInterface.cancel();
-                    }
-                })
-                //добавил кнопку удаления
-                .setNeutralButton("Удалить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //выскакивает новый Alert с подтверждением
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(Main.this)
-                                .setTitle("Удалить пункт")
-                                .setMessage("Вы уверены, что хотите удалить пункт?")
-                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        mapObjects = markerDrawer.removeMarker(mapObject, data);
-                                        reset_button.setVisibility(View.VISIBLE); //появляется кнопка СБРОСА, т.к. мы удалили пункт
-                                        dialogInterface.cancel();
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Main.this, R.style.AlertDialogCustom);
 
-                                    }
-                                })
-                                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        dialogInterface.cancel();
-                                    }
-                                });
-                        dialog.show();
-                        dialogInterface.cancel();
-                    }
+        View pointInfoView = LayoutInflater.from(Main.this).inflate(R.layout.show_point_info, null);
+        TextView info = (TextView) pointInfoView.findViewById(R.id.infoText);
+        TextView label = (TextView) pointInfoView.findViewById(R.id.infoLabel);
 
-                })
-                .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+        label.setText(data.getLocationName());
+        info.setText(data.getInfo() + "\n\nАдрес: " + data.getLocation() + "\n");
+
+        FlowLayout flowLayout = pointInfoView.findViewById(R.id.flow);
+        for(int i = 0; i < data.getTypes().length; ++i) {
+            ImageView imageView = new ImageButton(this);
+            int resId = markerDrawer.getDrawableId(data.getTypes()[i]);
+            imageView.setBackgroundResource(resId);
+            flowLayout.addView(imageView, 120, 144);
+        }
+        dialogBuilder.setView(pointInfoView);
+
+        AlertDialog dialog = dialogBuilder.create();
+
+        TextView createRouteButton = (TextView) pointInfoView.findViewById(R.id.createRouteButton);
+        TextView deleteButton = (TextView) pointInfoView.findViewById(R.id.deleteButton);
+        TextView closeButton = (TextView) pointInfoView.findViewById(R.id.closeButton);
+
+        createRouteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showHowToStart();
+                dialog.cancel();
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Main.this);
+
+                View infoDialog = LayoutInflater.from(Main.this).inflate(R.layout.info_dialog, null);
+
+                TextView labelInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Label);
+                labelInfo.setText("Удалить пункт");
+
+                TextView dataInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Text);
+                dataInfo.setText("Вы уверены, что хотите удалить пункт?");
+
+                TextView positiveButton = (TextView)infoDialog.findViewById(R.id.info_dialog_positiveButton);
+                positiveButton.setText("Да");
+
+                TextView negativeButton = (TextView)infoDialog.findViewById(R.id.info_dialog_NegativeButton);
+                negativeButton.setText("Нет");
+
+                builder.setView(infoDialog);
+
+                AlertDialog deleteDialog = builder.create();
+
+                positiveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
+                    public void onClick(View view) {
+                        mapObjects = markerDrawer.removeMarker(mapObject, data);
+                        reset_button.setVisibility(View.VISIBLE); //появляется кнопка СБРОСА, т.к. мы удалили пункт
+                        deleteDialog.cancel();
                     }
                 });
+
+                negativeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        deleteDialog.cancel();
+                    }
+                });
+
+                deleteDialog.show();
+                dialog.cancel();
+            }
+        });
+
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.cancel();
+            }
+        });
+
         dialog.show();
     }
 
+
+    //Выбираем откуда строить маршрут
     private void showHowToStart(){
-        AlertDialog.Builder startOption = new AlertDialog.Builder(Main.this)
-                .setTitle("Откуда вы хотите проложить маршрут?")
-                .setPositiveButton("Точка на карте", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //очищаю предыдущий маршрут
-                        deleteCurrentPath();
-                        isCustomPoint = true;
-                        isCreatingWithCustomPoint = true;
-                        Toast.makeText(Main.this, "Выберите точку на карте", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder startOption = new AlertDialog.Builder(Main.this);
+
+        View infoDialog = LayoutInflater.from(Main.this).inflate(R.layout.info_dialog, null);
+
+        TextView labelInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Label);
+        labelInfo.setText("Откуда вы хотите проложить маршрут?");
+
+        TextView positiveButton = (TextView)infoDialog.findViewById(R.id.info_dialog_positiveButton);
+        positiveButton.setText("Точка на карте");
+
+        TextView negativeButton = (TextView)infoDialog.findViewById(R.id.info_dialog_NegativeButton);
+        negativeButton.setText("Моя геолокация");
+
+        startOption.setView(infoDialog);
+
+        AlertDialog dialogStartOption = startOption.create();
+
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //очищаю предыдущий маршрут
+                deleteCurrentPath();
+                isCustomPoint = true;
+                isCreatingWithCustomPoint = true;
+                dialogStartOption.cancel();
+                Toast.makeText(Main.this, "Выберите точку на карте", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(userLocationLayer.cameraPosition() != null) {
+                    Point userPoint = userLocationLayer.cameraPosition().getTarget();
+                    if(regionHelper.isUserInRegion(userPoint)) {
+                        //если выбрали геолокацию, то блочу все, связанное с кастомным, чтоб не ломалось
+                        isCustomPoint = false;
+                        isCreatingWithCustomPoint = false;
+                        showCreateRouteOptions(userPoint);
+                        dialogStartOption.cancel();
                     }
-                })
-                .setNegativeButton("Моя геолокация", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(userLocationLayer.cameraPosition() != null) {
-                            //если выбрали геолокацию, то блочу все, связанное с кастомным, чтоб не ломалось
-                            isCustomPoint = false;
-                            isCreatingWithCustomPoint = false;
-                            showCreateRouteOptions(userLocationLayer.cameraPosition().getTarget());
-                        }else{
-                            Toast.makeText(Main.this, "Необходимо включить геолокацию!", Toast.LENGTH_SHORT).show();
-                        }
+                    else{
+                        Toast.makeText(Main.this, "Вы вне обслуживаемого региона", Toast.LENGTH_SHORT).show();
                     }
-                });
-        startOption.show();
+                }else{
+                    Toast.makeText(Main.this, "Необходимо включить геолокацию", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        dialogStartOption.show();
     }
 
+    //Окно с выбором типа маршрута
     private void showCreateRouteOptions(Point startPoint) {
-        AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this)
-                .setTitle("Как вы хотите добраться?")
-                .setPositiveButton("Отмена", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
-                .setNeutralButton("На машине", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        createDrivingRoute(startPoint);
-                    }
-                })
-                .setNegativeButton("Пешком", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        createPedestrianRoute(startPoint);
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        //обрабатываю закрытие окошка. Если маркер был поставлен, то удаляем
-                        if(isCreatingWithCustomPoint) {
-                            isCustomPoint = false;
-                            destination.setVisible(false);
-                            isCreatingWithCustomPoint = false;
-                        }
-                    }
-                });
-        routerOptions.show();
+        AlertDialog.Builder routerOptions = new AlertDialog.Builder(Main.this);
+
+        final boolean[] isCreatingRoute = {false};
+
+        View infoDialog = LayoutInflater.from(Main.this).inflate(R.layout.info_dialog, null);
+
+        TextView labelInfo = (TextView)infoDialog.findViewById(R.id.info_dialog_Label);
+        labelInfo.setText("Как вы хотите добраться?");
+
+        TextView positiveButton = (TextView)infoDialog.findViewById(R.id.info_dialog_positiveButton);
+        positiveButton.setText("На машине");
+
+        TextView neutralButton = (TextView)infoDialog.findViewById(R.id.info_dialog_NeutralButton);
+        neutralButton.setText("Пешком");
+
+        TextView negativeButton = (TextView)infoDialog.findViewById(R.id.info_dialog_NegativeButton);
+        negativeButton.setText("Отмена");
+
+        routerOptions.setView(infoDialog);
+
+
+        AlertDialog routerOptionsDialog = routerOptions.create();
+
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDrivingRoute(startPoint);
+                isCreatingRoute[0] = true;
+                routerOptionsDialog.cancel();
+            }
+        });
+
+        neutralButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createPedestrianRoute(startPoint);
+                isCreatingRoute[0] = true;
+                routerOptionsDialog.cancel();
+            }
+        });
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                routerOptionsDialog.cancel();
+            }
+        });
+
+        routerOptionsDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                //обрабатываю закрытие окошка. Если маркер был поставлен, то удаляем
+                if(isCreatingWithCustomPoint && !isCreatingRoute[0]) {
+                    isCustomPoint = false;
+                    destination.setVisible(false);
+                    isCreatingWithCustomPoint = false;
+                }
+            }
+        });
+
+        routerOptionsDialog.show();
     }
 
+    //Удаляем текущий путь
     private void deleteCurrentPath(){
         if(currentPath.size() != 0){
             for (PolylineMapObject poly : currentPath)
@@ -982,7 +1111,8 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         isCustomPoint = false;
         isCreatingWithCustomPoint = false;
     }
-    
+
+    //Прокладываем автомобильный маршрут
     private void createDrivingRoute(Point start) {
         List<RequestPoint> points = new ArrayList<>();
 
@@ -995,6 +1125,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 
+    //Прокладываем пеший маршрут
     private void createPedestrianRoute(Point start) {
         List<RequestPoint> points = new ArrayList<>();
 
@@ -1007,6 +1138,7 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
         removePath_button.setVisibility(View.VISIBLE);//когда маршрут строится появляется кнопка и мы можем удалить маршрут
     }
 
+    //Отрисовка маршрута
     private void drawPath(Polyline geometry) {
         if(currentPath.size() != 0){
             for (PolylineMapObject poly : currentPath)
@@ -1028,11 +1160,16 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void networkAvailable() {
+        if(isOffline){
+            isOffline = false;
+            Toast.makeText(this, "Интернет-соединение восстановленно", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void networkUnavailable() {
-        Toast.makeText(this, "Потеряно интернет-соединение, приложение может работать некорректно!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Потеряно интернет-соединение, приложение может работать некорректно", Toast.LENGTH_SHORT).show();
+        isOffline = true;
     }
 
     @Override
@@ -1098,10 +1235,6 @@ public class Main extends AppCompatActivity implements UserLocationObjectListene
 
     @Override
     public void onObjectAdded(@NonNull UserLocationView userLocationView) {
-        /*userLocationLayer.setAnchor(
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.5)),
-                new PointF((float)(mapview.getWidth() * 0.5), (float)(mapview.getHeight() * 0.83)));*/
-
         userLocationView.getArrow().setIcon(ImageProvider.fromResource(this, R.drawable.navigation_marker));
 
 
