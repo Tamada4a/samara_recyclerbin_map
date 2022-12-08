@@ -2,11 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="10dp"
     android:background="@color/theme">
 
-
+    <TextView
+        android:id="@+id/infoLabelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        />
 
     <AutoCompleteTextView
         android:padding="10dp"
@@ -18,6 +28,7 @@
         android:imeOptions="actionDone"
         android:inputType="text"
         android:layout_margin="10dp"/>
+
     <AutoCompleteTextView
         android:padding="10dp"
         android:layout_margin="10dp"
@@ -28,6 +39,7 @@
         android:hint="Информация"
         android:imeOptions="actionDone"
         android:inputType="textLongMessage" />
+
     <AutoCompleteTextView
         android:padding="10dp"
         android:layout_margin="10dp"
@@ -48,147 +60,171 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         />
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-<com.nex3z.flowlayout.FlowLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
+        android:layout_height="165dp">
 
-    <ImageButton
-        android:id="@+id/papers_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/papers"
-        android:scaleType="fitCenter"
-        />
+        <com.nex3z.flowlayout.FlowLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    <ImageButton
-        android:id="@+id/glass_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/glass"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/papers_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/papers"
+                android:scaleType="fitCenter"
+                />
 
-    <ImageButton
-        android:id="@+id/plastic_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/plastic"
-        android:scaleType="fitCenter"
-        />
+            <ImageButton
+                android:id="@+id/glass_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/glass"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/metal_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="25dp"
-        android:background="@drawable/metal"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/plastic_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/plastic"
+                android:scaleType="fitCenter"
+                />
 
-    <ImageButton
-        android:id="@+id/cloths_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="25dp"
-        android:background="@drawable/cloths"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/metal_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/metal"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/other_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/other"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/cloths_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/cloths"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/dangerous_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/dangerous"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/other_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/other"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/batteries_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/batteries"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/dangerous_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dangerous"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/lamp_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/lamp"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/batteries_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/batteries"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/appliances_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/appliances"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/lamp_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/lamp"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/tetra_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="25dp"
-        android:background="@drawable/tetra"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/appliances_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/appliances"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/lid_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="25dp"
-        android:background="@drawable/lid"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/tetra_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/tetra"
+                android:scaleType="fitCenter"
+                 />
 
-    <ImageButton
-        android:id="@+id/tires_menu_button"
-        android:layout_width="55dp"
-        android:layout_height="66dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/tires"
-        android:scaleType="fitCenter"
-         />
+            <ImageButton
+                android:id="@+id/lid_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/lid"
+                android:scaleType="fitCenter"
+                 />
 
-</com.nex3z.flowlayout.FlowLayout>
+            <ImageButton
+                android:id="@+id/tires_menu_button"
+                android:layout_width="55dp"
+                android:layout_height="66dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/tires"
+                android:scaleType="fitCenter"
+                 />
 
+        </com.nex3z.flowlayout.FlowLayout>
     </ScrollView>
+
+    <com.nex3z.flowlayout.FlowLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        app:flChildSpacing="auto"
+        app:flChildSpacingForLastRow="align"
+        app:flRowSpacing="10dp"
+        app:flRtl="true">
+
+        <TextView
+            android:id="@+id/closeButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="Закрыть"
+            android:textColor="@color/white"
+            android:textSize="25sp"/>
+
+        <TextView
+            android:id="@+id/createButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Создать"
+            android:textColor="@color/white"
+            android:textSize="25sp"/>
+    </com.nex3z.flowlayout.FlowLayout>
 
 
 </LinearLayout>
